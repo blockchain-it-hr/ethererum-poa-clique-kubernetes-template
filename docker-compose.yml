@@ -1,0 +1,21 @@
+version: "3.5"
+
+services:    
+  ganache:
+    image: trufflesuite/ganache-cli:latest
+    command: "--networkId ${NETWORK_ID} -e 100 --mnemonic \"combine swap jacket ranch dad lyrics job sweet puppy column famous guitar\" "
+    ports:
+      - "8545:8545"
+    environment:
+      - DOCKER=true
+
+  truffle:
+    build: './blockchain'
+    volumes:
+      - blockchain:/blockchain/build
+    depends_on:
+      - ganache
+    command: bash -c "truffle migrate --reset"
+
+volumes:
+  blockchain:
