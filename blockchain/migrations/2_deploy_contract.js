@@ -1,5 +1,5 @@
-let Test = artifacts.require("Test.sol");
+let Ballot = artifacts.require("Ballot.sol");
 
 module.exports = function (deployer) {
-    deployer.deploy(Test)
+    deployer.deploy(Ballot)
 };
