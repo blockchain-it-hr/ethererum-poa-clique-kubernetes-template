@@ -51,25 +51,12 @@ async function asyncForEach(array, callback) {
 }
 
 function validateBody(body) {
-    if (body.requestId === undefined) {
-        throw new BadRequest("requestId cannot be undefined")
+    if (body.id === undefined) {
+        throw new BadRequest("Id cannot be undefined")
     }
-    if (body.ticketId === undefined) {
-        throw new BadRequest("ticketId cannot be undefined")
+    if (body.other === undefined) {
+        throw new BadRequest("Other cannot be undefined")
     }
-    if (body.requestor === undefined) {
-        throw new BadRequest("requestor cannot be undefined")
-    }
-    if (body.requestee === undefined) {
-        throw new BadRequest("requestee cannot be undefined")
-    }
-    if (body.timestamp === undefined) {
-        throw new BadRequest("timestamp cannot be undefined")
-    }
-    if (body.currentAppUser === undefined) {
-        throw new BadRequest("currentAppUser cannot be undefined")
-    }
-
 }
 
 module.exports = {
