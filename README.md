@@ -1,6 +1,6 @@
 # ethererum-poa-clique-template
 
 
-#Kubernetes 
+# Kubernetes 
 Run with: sh start.sh
 
