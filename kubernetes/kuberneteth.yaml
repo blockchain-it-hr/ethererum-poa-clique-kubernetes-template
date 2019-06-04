@@ -21,6 +21,7 @@ nodes:
       replicas: 1
     # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
     geth:
+      storage_size: 20      
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0x0ce04250b1e8aefa4da5411079365881d9edb2a0"
       Eth_Password: "R_e9bH5Jn8@vVSan"
@@ -44,6 +45,7 @@ nodes:
       replicas: 1
     # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
     geth:
+      storage_size: 20
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0xf7613db032b4fd8569ef036f0e0f2757846659ab"
       Eth_Password: "R_e9bH5Jn8@vVSan"
@@ -67,6 +69,7 @@ nodes:
       replicas: 1
     # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
     geth:
+      storage_size: 20
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0x563c415aa48f173961b868354ea94a3e0cd6e387"
       Eth_Password: "R_e9bH5Jn8@vVSan"
@@ -130,6 +133,8 @@ nodes:
 # ...
 monitor:
   name: monitor
+  ws_secret: "R_e9bH5Jn8@vVSan"
+  storage_size: 10
   # verbosity can be within [0..3]
   verbosity: 3
   k8s:
@@ -145,6 +150,7 @@ monitor:
         path: Genesis-geth.json
 explorer:
   name: explorer
+  storage_size: 10
   explorerNode: miner01
   explorerHTTPPort: 8545
   k8s:

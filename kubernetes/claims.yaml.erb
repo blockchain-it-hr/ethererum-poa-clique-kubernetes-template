@@ -10,6 +10,7 @@ def set_node_template_vars(values)
   @NodeP2P_DiscoveryAddr = values["geth"]["NodeP2P_DiscoveryAddr"]
   @Dashboard_Port        = values["geth"]["Dashboard_Port"]
   @Dashboard_Refresh     = values["geth"]["Dashboard_Refresh"]
+  @Storage_Size          = values["geth"]["storage_size"]
   @nodePort_rpc          = values["k8s"]["nodePort_rpc"]
   @nodePort_ipc          = values["k8s"]["nodePort_ipc"]
   @replicas              = values["k8s"]["replicas"]
@@ -30,11 +31,10 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 80Gi
+      storage: <%= @Storage_Size %>Gi
 status: {}
 ---
 <% end -%>
----
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
@@ -47,7 +47,7 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 10Gi
+      storage: <%= @config["monitor"]["storage_size"] %>Gi
 status: {}
 ---
 apiVersion: v1
@@ -61,6 +61,6 @@ spec:
   - ReadWriteOnce
   resources:
     requests:
-      storage: 50Gi
+      storage: <%= @config["explorer"]["storage_size"] %>Gi
 status: {}
 ---
