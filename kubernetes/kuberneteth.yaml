@@ -179,6 +179,7 @@ geth:
   network:
     # network id (1: mainnet, 3: ropsten, 4: rinkeby ... )
     id: 12341234
+    period: 15
     # public (true|false) is it a public network?
     public: false
     # cross_net (true|false) is it cross different network (cloud)

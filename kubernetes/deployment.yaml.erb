@@ -142,7 +142,7 @@ data:
             "eip158Block": 3,
             "byzantiumBlock": 4,
             "clique": {
-                "period": 15,
+                "period": <%= @config["geth"]["network"]["period"] %>,
                 "epoch": 30000
             }
         },
