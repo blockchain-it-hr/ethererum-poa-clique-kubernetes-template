@@ -363,7 +363,7 @@ data:
           "INSTANCE_NAME"   : "miner01",
           "CONTACT_DETAILS" : "",
           "WS_SERVER"       : "localhost:3001",
-          "WS_SECRET"       : "R_e9bH5Jn8@vVSan",
+          "WS_SECRET"       : "123",
           "VERBOSITY"       : 3
         }
       },
@@ -385,7 +385,7 @@ data:
           "INSTANCE_NAME"   : "miner02",
           "CONTACT_DETAILS" : "",
           "WS_SERVER"       : "localhost:3001",
-          "WS_SECRET"       : "R_e9bH5Jn8@vVSan",
+          "WS_SECRET"       : "123",
           "VERBOSITY"       : 3
         }
       },
@@ -407,7 +407,7 @@ data:
           "INSTANCE_NAME"   : "miner03",
           "CONTACT_DETAILS" : "",
           "WS_SERVER"       : "localhost:3001",
-          "WS_SECRET"       : "R_e9bH5Jn8@vVSan",
+          "WS_SECRET"       : "123",
           "VERBOSITY"       : 3
         }
       }
@@ -445,7 +445,7 @@ metadata:
     app: kuberneteth
     name: genesis-config
 data:
-  Genesis-geth.json: |-
+  genesis-geth.json: |-
     {
         "config": {
             "chainId": 12341234,
@@ -653,14 +653,14 @@ spec:
     args:
     - "-c"
     - "cd /etc/testnet/bootnode;
-       /geth --datadir /etc/testnet/bootnode init /etc/geth/genesis/Genesis-geth.json;
-       /bootnode --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --addr \":30303\" --nat any --verbosity 9;"
+       /geth --datadir /etc/testnet/bootnode init /etc/geth/genesis/genesis-geth.json;
+       /bootnode --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --addr \":30303\" --nat none --verbosity 9;"
     volumeMounts:
     - name: geth-boot-node-persistent-storage
       mountPath: /etc/testnet/bootnode
     - name: genesis-config-persistent-storage
-      mountPath: /etc/geth/genesis/Genesis-geth.json
-      subPath: Genesis-geth.json
+      mountPath: /etc/geth/genesis/genesis-geth.json
+      subPath: genesis-geth.json
   volumes:
   - name: geth-boot-node-persistent-storage
     hostPath:
@@ -669,8 +669,8 @@ spec:
     configMap:
       name: genesis-config
       items:
-      - key: Genesis-geth.json
-        path: Genesis-geth.json
+      - key: genesis-geth.json
+        path: genesis-geth.json
 
 ---
 apiVersion: apps/v1
@@ -703,9 +703,9 @@ spec:
         args:
         - "-cx"
         - "if [ ! -f /etc/testnet/miner01/genesis_created ]; then
-             /usr/local/bin/geth --datadir /etc/testnet/miner01 init /etc/geth/genesis/Genesis-geth.json;
+             /usr/local/bin/geth --datadir /etc/testnet/miner01 init /etc/geth/genesis/genesis-geth.json;
              touch /etc/testnet/miner01/genesis_created;
-             echo R_e9bH5Jn8@vVSan > /etc/testnet/miner01/password.txt;
+             echo 123 > /etc/testnet/miner01/password.txt;
 
            fi;"
         volumeMounts:
@@ -714,8 +714,8 @@ spec:
         - name: geth-boot-node-persistent-storage
           mountPath: /etc/testnet/bootnode
         - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/Genesis-geth.json
-          subPath: Genesis-geth.json
+          mountPath: /etc/geth/genesis/genesis-geth.json
+          subPath: genesis-geth.json
       containers:
       - name: miner01-container
         image: ethereum/client-go:stable
@@ -765,8 +765,8 @@ spec:
         configMap:
           name: genesis-config
           items:
-          - key: Genesis-geth.json
-            path: Genesis-geth.json
+          - key: genesis-geth.json
+            path: genesis-geth.json
       - name: miner01-persistent-storage
         persistentVolumeClaim:
           claimName: volume-miner01
@@ -807,9 +807,9 @@ spec:
         args:
         - "-cx"
         - "if [ ! -f /etc/testnet/miner02/genesis_created ]; then
-             /usr/local/bin/geth --datadir /etc/testnet/miner02 init /etc/geth/genesis/Genesis-geth.json;
+             /usr/local/bin/geth --datadir /etc/testnet/miner02 init /etc/geth/genesis/genesis-geth.json;
              touch /etc/testnet/miner02/genesis_created;
-             echo R_e9bH5Jn8@vVSan > /etc/testnet/miner02/password.txt;
+             echo 123 > /etc/testnet/miner02/password.txt;
 
            fi;"
         volumeMounts:
@@ -818,8 +818,8 @@ spec:
         - name: geth-boot-node-persistent-storage
           mountPath: /etc/testnet/bootnode
         - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/Genesis-geth.json
-          subPath: Genesis-geth.json
+          mountPath: /etc/geth/genesis/genesis-geth.json
+          subPath: genesis-geth.json
       containers:
       - name: miner02-container
         image: ethereum/client-go:stable
@@ -869,8 +869,8 @@ spec:
         configMap:
           name: genesis-config
           items:
-          - key: Genesis-geth.json
-            path: Genesis-geth.json
+          - key: genesis-geth.json
+            path: genesis-geth.json
       - name: miner02-persistent-storage
         persistentVolumeClaim:
           claimName: volume-miner02
@@ -911,9 +911,9 @@ spec:
         args:
         - "-cx"
         - "if [ ! -f /etc/testnet/miner03/genesis_created ]; then
-             /usr/local/bin/geth --datadir /etc/testnet/miner03 init /etc/geth/genesis/Genesis-geth.json;
+             /usr/local/bin/geth --datadir /etc/testnet/miner03 init /etc/geth/genesis/genesis-geth.json;
              touch /etc/testnet/miner03/genesis_created;
-             echo R_e9bH5Jn8@vVSan > /etc/testnet/miner03/password.txt;
+             echo 123 > /etc/testnet/miner03/password.txt;
 
            fi;"
         volumeMounts:
@@ -922,8 +922,8 @@ spec:
         - name: geth-boot-node-persistent-storage
           mountPath: /etc/testnet/bootnode
         - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/Genesis-geth.json
-          subPath: Genesis-geth.json
+          mountPath: /etc/geth/genesis/genesis-geth.json
+          subPath: genesis-geth.json
       containers:
       - name: miner03-container
         image: ethereum/client-go:stable
@@ -973,8 +973,8 @@ spec:
         configMap:
           name: genesis-config
           items:
-          - key: Genesis-geth.json
-            path: Genesis-geth.json
+          - key: genesis-geth.json
+            path: genesis-geth.json
       - name: miner03-persistent-storage
         persistentVolumeClaim:
           claimName: volume-miner03
@@ -1050,7 +1050,7 @@ spec:
           - containerPort: 3001
         env:
         - name: WS_SECRET
-          value: "R_e9bH5Jn8@vVSan"
+          value: "123"
         - name: PORT
           value: "3001"
       - name: eth-net-intelligence-api-container

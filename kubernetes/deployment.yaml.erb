@@ -131,7 +131,7 @@ metadata:
     app: kuberneteth
     name: genesis-config
 data:
-  Genesis-geth.json: |-
+  genesis-geth.json: |-
     {
         "config": {
             "chainId": <%= @config["geth"]["network"]["id"] %>,
@@ -290,14 +290,14 @@ spec:
     args:
     - "-c"
     - "cd <%= @config["bootnode"]["geth"]["Node_DataDir"] %>;
-       /geth --datadir <%= @config["bootnode"]["geth"]["Node_DataDir"] %> init /etc/geth/genesis/Genesis-geth.json;
-       /bootnode --nodekeyhex <%= @config["bootnode"]["nodekeyhex"] %> --addr \":<%= @config["bootnode"]["geth"]["NodeP2P_DiscoveryAddr"] %>\" --nat any --verbosity <%= @config["bootnode"]["verbosity"] %>;"
+       /geth --datadir <%= @config["bootnode"]["geth"]["Node_DataDir"] %> init /etc/geth/genesis/genesis-geth.json;
+       /bootnode --nodekeyhex <%= @config["bootnode"]["nodekeyhex"] %> --addr \":<%= @config["bootnode"]["geth"]["NodeP2P_DiscoveryAddr"] %>\" --nat none --verbosity <%= @config["bootnode"]["verbosity"] %>;"
     volumeMounts:
     - name: geth-boot-node-persistent-storage
       mountPath: <%= @config["bootnode"]["geth"]["Node_DataDir"] %>
     - name: genesis-config-persistent-storage
-      mountPath: /etc/geth/genesis/Genesis-geth.json
-      subPath: Genesis-geth.json
+      mountPath: /etc/geth/genesis/genesis-geth.json
+      subPath: genesis-geth.json
   volumes:
   - name: geth-boot-node-persistent-storage
     hostPath:
@@ -306,8 +306,8 @@ spec:
     configMap:
       name: genesis-config
       items:
-      - key: Genesis-geth.json
-        path: Genesis-geth.json
+      - key: genesis-geth.json
+        path: genesis-geth.json
 <% end -%>
 
 <%- @nodes.each do |node| -%>
@@ -344,7 +344,7 @@ spec:
         args:
         - "-cx"
         - "if [ ! -f <%= @Node_DataDir %>/genesis_created ]; then
-             /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/Genesis-geth.json;
+             /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/genesis-geth.json;
              touch <%= @Node_DataDir %>/genesis_created;
 <%- if @Eth_Etherbase && @Eth_Password -%>
              echo <%= @Eth_Password %> > <%= @Node_DataDir %>/password.txt;
@@ -356,8 +356,8 @@ spec:
         - name: geth-boot-node-persistent-storage
           mountPath: <%= @config["bootnode"]["geth"]["Node_DataDir"] %>
         - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/Genesis-geth.json
-          subPath: Genesis-geth.json
+          mountPath: /etc/geth/genesis/genesis-geth.json
+          subPath: genesis-geth.json
 <% end -%>
       containers:
       - name: <%= @Node_UserIdent %>-container
@@ -431,8 +431,8 @@ spec:
         configMap:
           name: genesis-config
           items:
-          - key: Genesis-geth.json
-            path: Genesis-geth.json
+          - key: genesis-geth.json
+            path: genesis-geth.json
 <% end -%>
       - name: <%= @Node_UserIdent %>-persistent-storage
         persistentVolumeClaim:

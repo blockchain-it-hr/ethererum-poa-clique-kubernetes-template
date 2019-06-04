@@ -24,7 +24,7 @@ nodes:
       storage_size: 20      
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0x0ce04250b1e8aefa4da5411079365881d9edb2a0"
-      Eth_Password: "R_e9bH5Jn8@vVSan"
+      Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner01
       Node_DataDir: /etc/testnet/miner01
@@ -48,7 +48,7 @@ nodes:
       storage_size: 20
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0xf7613db032b4fd8569ef036f0e0f2757846659ab"
-      Eth_Password: "R_e9bH5Jn8@vVSan"
+      Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner02
       Node_DataDir: /etc/testnet/miner02
@@ -72,7 +72,7 @@ nodes:
       storage_size: 20
       # address where the mining rewards will go to (optional)
       Eth_Etherbase: "0x563c415aa48f173961b868354ea94a3e0cd6e387"
-      Eth_Password: "R_e9bH5Jn8@vVSan"
+      Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner03
       Node_DataDir: /etc/testnet/miner03
@@ -133,7 +133,7 @@ nodes:
 # ...
 monitor:
   name: monitor
-  ws_secret: "R_e9bH5Jn8@vVSan"
+  ws_secret: "123"
   storage_size: 10
   # verbosity can be within [0..3]
   verbosity: 3
@@ -146,8 +146,8 @@ monitor:
     configMap:
       name: genesis-config
       items:
-      - key: Genesis-geth.json
-        path: Genesis-geth.json
+      - key: genesis-geth.json
+        path: genesis-geth.json
 explorer:
   name: explorer
   storage_size: 10
