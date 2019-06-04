@@ -176,7 +176,7 @@ spec:
   selector:
     app: kuberneteth
     tier: backend
-    name: <%= @Node_UserIdent %>-deployment
+    name: <%= @Node_UserIdent %>
 <%- if @nodePort_rpc || @nodePort_ipc -%>
   type: LoadBalancer
   externalTrafficPolicy: Cluster
@@ -313,21 +313,27 @@ spec:
 <%- @nodes.each do |node| -%>
 <%= set_node_template_vars(node.values.first) -%>
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: geth-<%= @Node_UserIdent %>-deployment
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-<%= @Node_UserIdent %>
+  name: geth-<%= @Node_UserIdent %>
 spec:
-  strategy:
-    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: <%= @replicas %>
+  serviceName: geth-<%= @Node_UserIdent %>
   template:
     metadata:
-      name: geth-<%= @Node_UserIdent %>-deployment
+      name: geth-<%= @Node_UserIdent %>
       labels:
         app: kuberneteth
         tier: backend
-        name: <%= @Node_UserIdent %>-deployment
+        name: <%= @Node_UserIdent %>
     spec:
       initContainers:
 <%- unless @config["geth"]["network"]["public"] -%>
@@ -462,21 +468,23 @@ spec:
       nodePort: <%= @config["monitor"]["k8s"]["nodePort"] %>
 <% end -%>
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: <%= @config["monitor"]["name"] %>-deployment
+  name: <%= @config["monitor"]["name"] %>
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: monitor
   template:
     metadata:
-      name: <%= @config["monitor"]["name"] %>-deployment
+      name: <%= @config["monitor"]["name"] %>
       labels:
         app: kuberneteth
         tier: frontend
-        name: <%= @config["monitor"]["name"] %>-deployment
+        name: <%= @config["monitor"]["name"] %>
     spec:
       initContainers:
       - name: <%= @config["monitor"]["name"] %>-init-container
@@ -588,7 +596,7 @@ spec:
   selector:
     app: kuberneteth
     tier: frontend
-    name: explorer-deployment
+    name: explorer
 <%- if @config["explorer"]["k8s"]["nodePort"] -%>
   type: LoadBalancer
   externalTrafficPolicy: Cluster
@@ -601,21 +609,23 @@ spec:
       nodePort: <%= @config["explorer"]["k8s"]["nodePort"] %>
 <% end -%>
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: explorer
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: explorer
   template:
     metadata:
-      name: explorer-deployment
+      name: explorer
       labels:
         app: kuberneteth
         tier: frontend
-        name: explorer-deployment
+        name: explorer
     spec:
       containers:
       - name: explorer

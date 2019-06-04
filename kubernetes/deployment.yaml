@@ -487,7 +487,7 @@ spec:
   selector:
     app: kuberneteth
     tier: backend
-    name: miner01-deployment
+    name: miner01
   type: LoadBalancer
   externalTrafficPolicy: Cluster
   ports:
@@ -522,7 +522,7 @@ spec:
   selector:
     app: kuberneteth
     tier: backend
-    name: miner02-deployment
+    name: miner02
   type: LoadBalancer
   externalTrafficPolicy: Cluster
   ports:
@@ -557,7 +557,7 @@ spec:
   selector:
     app: kuberneteth
     tier: backend
-    name: miner03-deployment
+    name: miner03
   type: LoadBalancer
   externalTrafficPolicy: Cluster
   ports:
@@ -673,21 +673,27 @@ spec:
         path: Genesis-geth.json
 
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: geth-miner01-deployment
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-miner01
+  name: geth-miner01
 spec:
-  strategy:
-    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: geth-miner01
   template:
     metadata:
-      name: geth-miner01-deployment
+      name: geth-miner01
       labels:
         app: kuberneteth
         tier: backend
-        name: miner01-deployment
+        name: miner01
     spec:
       initContainers:
       - name: miner01-genesis-init-container
@@ -771,21 +777,27 @@ spec:
           - key: gethconfig
             path: gethconfig.toml
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: geth-miner02-deployment
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-miner02
+  name: geth-miner02
 spec:
-  strategy:
-    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: geth-miner02
   template:
     metadata:
-      name: geth-miner02-deployment
+      name: geth-miner02
       labels:
         app: kuberneteth
         tier: backend
-        name: miner02-deployment
+        name: miner02
     spec:
       initContainers:
       - name: miner02-genesis-init-container
@@ -869,21 +881,27 @@ spec:
           - key: gethconfig
             path: gethconfig.toml
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: geth-miner03-deployment
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-miner03
+  name: geth-miner03
 spec:
-  strategy:
-    type: RollingUpdate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: geth-miner03
   template:
     metadata:
-      name: geth-miner03-deployment
+      name: geth-miner03
       labels:
         app: kuberneteth
         tier: backend
-        name: miner03-deployment
+        name: miner03
     spec:
       initContainers:
       - name: miner03-genesis-init-container
@@ -986,21 +1004,23 @@ spec:
       port: 3001
       nodePort: 30100
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
-  name: monitor-deployment
+  name: monitor
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: monitor
   template:
     metadata:
-      name: monitor-deployment
+      name: monitor
       labels:
         app: kuberneteth
         tier: frontend
-        name: monitor-deployment
+        name: monitor
     spec:
       initContainers:
       - name: monitor-init-container
@@ -1111,7 +1131,7 @@ spec:
   selector:
     app: kuberneteth
     tier: frontend
-    name: explorer-deployment
+    name: explorer
   type: LoadBalancer
   externalTrafficPolicy: Cluster
   ports:
@@ -1120,21 +1140,23 @@ spec:
       port: 3000
       nodePort: 30101
 ---
-apiVersion: extensions/v1beta1
-kind: Deployment
+apiVersion: apps/v1
+kind: StatefulSet
 metadata:
   name: explorer
 spec:
-  strategy:
-    type: Recreate
+  selector:
+    matchLabels:
+      app: kuberneteth
   replicas: 1
+  serviceName: explorer
   template:
     metadata:
-      name: explorer-deployment
+      name: explorer
       labels:
         app: kuberneteth
         tier: frontend
-        name: explorer-deployment
+        name: explorer
     spec:
       containers:
       - name: explorer
