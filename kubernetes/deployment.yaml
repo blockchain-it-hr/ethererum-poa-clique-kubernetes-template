@@ -1024,7 +1024,7 @@ spec:
     spec:
       initContainers:
       - name: monitor-init-container
-        image: ijsfd/eth-net-intelligence-api
+        image: buythewhale/ethstats_monitor:latest
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:

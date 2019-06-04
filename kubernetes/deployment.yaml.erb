@@ -488,7 +488,7 @@ spec:
     spec:
       initContainers:
       - name: <%= @config["monitor"]["name"] %>-init-container
-        image: ijsfd/eth-net-intelligence-api
+        image: buythewhale/ethstats_monitor:latest
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
