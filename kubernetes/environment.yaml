@@ -175,8 +175,13 @@ geth:
   version: stable
   network:
     # network id (1: mainnet, 3: ropsten, 4: rinkeby ... )
-    id: 12341234
+    id: 1
     period: 15
+    verbosity: 3
+    epoch: 30000
+    nonce: "0x0"
+    timestamp: "0x5cdec502"
+    gaslimit: "0x82F79CD9000"
     # public (true|false) is it a public network?
     public: false
     # cross_net (true|false) is it cross different network (cloud)
@@ -187,6 +192,4 @@ geth:
   # to prevent other nodes connecting from the outside
   # NodeP2P_Netrestrict: "10.36.0.0/14"
   # general verbosity of geth [1..5]
-  verbosity: 3
 
-  
