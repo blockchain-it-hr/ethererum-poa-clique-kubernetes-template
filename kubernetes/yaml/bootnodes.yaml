@@ -1,0 +1,203 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keystore-config-bootnode
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: keystore-config-bootnode
+data:
+  UTC--2019-06-04T13-53-00.073235074Z--2da602397dbcd7b3f3efec474124746e8e913c44: |-
+    {
+      "address": "2da602397dbcd7b3f3efec474124746e8e913c44",
+      "crypto": {
+        "cipher": "aes-128-ctr",
+        "ciphertext": "9be407822ff9c1971a7884bd30fdedfe5e7c95983aba1cf769a9e97274cf475c",
+        "cipherparams": {
+          "iv": "adcae5c0e3e856c1518eb272a92dec19"
+        },
+        "kdf": "scrypt",
+        "kdfparams": {
+          "dklen": 32,
+          "n": 262144,
+          "p": 1,
+          "r": 8,
+          "salt": "bbaac7cbaa1343ae785a915f14ee56aff0747d778b116fa22d47b72409a1ad34"
+        },
+        "mac": "5a1cb6f2128e180ceccf4f0b70a4650fcad45de13b45f5899823c9eed1cff057"
+      },
+      "id": "7d114ba4-1288-40d2-b9a3-651ff6a06036",
+      "version": 3
+    }
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gethconfig-bootnode
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: gethconfig-bootnode
+data:
+  gethconfig: |-
+    [Eth]
+    NetworkId = 12341234
+    SyncMode = "full"
+    LightPeers = 100
+    DatabaseCache = 768
+    Etherbase = "0x2da602397dbcd7b3f3efec474124746e8e913c44"
+    MinerGasPrice = 0
+    EnablePreimageRecording = false
+    
+    [Eth.Ethash]
+    CacheDir = "ethash"
+    CachesInMem = 2
+    CachesOnDisk = 3
+    DatasetDir = "/root/.ethash"
+    DatasetsInMem = 1
+    DatasetsOnDisk = 2
+    PowMode = 0
+    
+    [Eth.TxPool]
+    Locals = []
+    NoLocals = false
+    Journal = "transactions.rlp"
+    Rejournal = 3600000000000
+    PriceLimit = 1
+    PriceBump = 10
+    AccountSlots = 16
+    GlobalSlots = 4096
+    AccountQueue = 64
+    GlobalQueue = 1024
+    Lifetime = 10800000000000
+    
+    [Eth.GPO]
+    Blocks = 20
+    Percentile = 60
+    
+    [Shh]
+    MaxMessageSize = 1048576
+    MinimumAcceptedPOW = 2e-01
+    
+    [Node]
+    UserIdent = "bootnode"
+    DataDir = "/etc/testnet/bootnode"
+    IPCPath = "/etc/testnet/bootnode/geth.ipc"
+    HTTPHost = "0.0.0.0"
+    HTTPPort = 8545
+    HTTPCors = ["*"]
+    HTTPVirtualHosts = ["*"]
+    HTTPModules = ["db", "eth", "net", "web3", "personal", "miner", "admin", "clique"]
+    WSHost = "0.0.0.0"
+    WSPort = 8546
+    WSOrigins = ["*"]
+    WSModules = ["net", "web3", "eth", "shh"]
+    
+    [Node.P2P]
+    MaxPeers = 25
+    NoDiscovery = false
+    BootstrapNodes = []
+    BootstrapNodesV5 = []
+    StaticNodes = []
+    TrustedNodes = []
+    ListenAddr = ":30303"
+    EnableMsgEvents = false
+    
+    [Dashboard]
+    Host = "0.0.0.0"
+    Port = 8080
+    Refresh = 3000000000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geth-bootnode-svc
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-bootnode-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: backend
+    name: bootnode
+  ports:
+    - name: geth-bootnode-ipc-discovery
+      protocol: UDP
+      port: 30303
+      targetPort: 30303
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: geth-boot-node-setup-pod
+  labels:
+    app: kuberneteth
+    name: bootnode-setup-pod
+spec:
+  template:
+    metadata:
+      labels:
+        app: kuberneteth
+        name: bootnode-setup-pod
+    spec:
+      containers:
+      - name: geth-boot-node-setup-container
+        image: ijsfd/geth-node:latest
+        imagePullPolicy: IfNotPresent
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cd /etc/testnet/bootnode;
+           echo \"enode://$(/bootnode -nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 -writeaddress)@$GETH_BOOTNODE_SVC_SERVICE_HOST:30303\" > enode.address;
+           set +x;
+           while true; do :; done;"
+        volumeMounts:
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+      volumes:
+      - name: geth-boot-node-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/bootnode
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: geth-boot-node-pod
+  labels:
+    app: kuberneteth
+    name: geth-bootnode-pod
+spec:
+  containers:
+  - name: geth-boot-node-container
+    image: ijsfd/geth-node:latest
+    imagePullPolicy: IfNotPresent
+    ports:
+      - containerPort: 30301
+      - containerPort: 30303
+        protocol: UDP
+    command: [ "sh" ]
+    args:
+    - "-c"
+    - "cd /etc/testnet/bootnode;
+       /geth --datadir /etc/testnet/bootnode init /etc/geth/genesis/genesis-geth.json;
+       /bootnode --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --addr \":30303\" --nat any --verbosity 9;"
+    volumeMounts:
+    - name: geth-boot-node-persistent-storage
+      mountPath: /etc/testnet/bootnode
+    - name: genesis-config-persistent-storage
+      mountPath: /etc/geth/genesis/genesis-geth.json
+      subPath: genesis-geth.json
+  volumes:
+  - name: geth-boot-node-persistent-storage
+    hostPath:
+      path: /var/lib/docker/geth-storage/bootnode
+  - name: genesis-config-persistent-storage
+    configMap:
+      name: genesis-config
+      items:
+      - key: genesis-geth.json
+        path: genesis-geth.json
+---

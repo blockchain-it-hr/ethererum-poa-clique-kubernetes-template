@@ -18,43 +18,6 @@ def set_node_template_vars(values)
 end
 -%>
 <%- unless @config["keystore"]["secret"] -%>
-<%- @bootnodes.each do |node| -%>
-<%= set_node_template_vars(node.values.first) -%>
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: keystore-config-<%= @Node_UserIdent %>
-  namespace: default
-  labels:
-    app: kuberneteth
-    name: keystore-config-<%= @Node_UserIdent %>
-data:
-  <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>: |-
-<%- File.readlines("keystore/#{@config["keystore"]["items"]["#{@Eth_Etherbase}"]}").each do |line| -%>
-    <%= line -%>
-<% end -%>
-<% end -%>
-<% end -%>
-<%- @bootnodes.each do |node| -%>
-<%= set_node_template_vars(node.values.first) -%>
----
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: gethconfig-<%= @Node_UserIdent %>
-  namespace: default
-  labels:
-    app: kuberneteth
-    name: gethconfig-<%= @Node_UserIdent %>
-data:
-  gethconfig: |-
-<%- File.readlines("#{@Node_UserIdent}.toml").each do |line| -%>
-    <%= line -%>
-<% end -%>
-<% end %>
-
-<%- unless @config["keystore"]["secret"] -%>
 <%- @nodes.each do |node| -%>
 <%= set_node_template_vars(node.values.first) -%>
 ---
@@ -124,7 +87,7 @@ data:
           "INSTANCE_NAME"   : "<%= @Node_UserIdent %>",
           "CONTACT_DETAILS" : "",
           "WS_SERVER"       : "localhost:3001",
-          "WS_SECRET"       : "<%= @config["monitor"]["ws_secret"] %>",
+          "WS_SECRET"       : "connectme",
           "VERBOSITY"       : <%= @config["monitor"]["verbosity"] %>
         }
 <%- if index == @nodes.length-1 -%>
@@ -134,6 +97,7 @@ data:
 <% end -%>
 <% end -%>
     ]
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -155,6 +119,7 @@ data:
         "patch":        true,
         "patchBlocks":  100
     }
+
 <%- unless @config["geth"]["network"]["public"] -%>
 ---
 apiVersion: v1
@@ -166,7 +131,7 @@ metadata:
     app: kuberneteth
     name: genesis-config
 data:
-  genesis-geth.json: |-
+  Genesis-geth.json: |-
     {
         "config": {
             "chainId": <%= @config["geth"]["network"]["id"] %>,
@@ -177,14 +142,14 @@ data:
             "eip158Block": 3,
             "byzantiumBlock": 4,
             "clique": {
-                "period": <%= @config["geth"]["network"]["period"] %>,
+                "period": 7,
                 "epoch": 30000
             }
         },
         "nonce": "0x0",
         "timestamp": "0x5cdec502",
-`        "extraData": "0x0000000000000000000000000000000000000000000000000000000000000000c11ba4c7c24f70e7a581c7daa92eac108099acec4c92786b90d848eaa3f4ef46918af724a309ae794e7afbdc9413eeb582b3f1be49d652fa714484da0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
-        "gasLimit": "0x82F79CD9000",
+        "extraData": "0x00000000000000000000000000000000000000000000000000000000000000000ce04250b1e8aefa4da5411079365881d9edb2a0563c415aa48f173961b868354ea94a3e0cd6e387f7613db032b4fd8569ef036f0e0f2757846659ab0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000",
+        "gasLimit": "0xAAE6000",
         "difficulty" : "<%= @config["geth"]["difficulty"] %>",
         "mixHash": "0x0000000000000000000000000000000000000000000000000000000000000000",
         "coinbase": "0x0000000000000000000000000000000000000000",
@@ -195,6 +160,22 @@ data:
         "parentHash": "0x0000000000000000000000000000000000000000000000000000000000000000"
     }
 <% end -%>
+
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: backend-environment
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: backend-environment
+type: Opaque
+stringData:
+<%- File.readlines(".env.dev").each do |line| -%>
+    <%= line -%>
+<% end -%>
+
 
 <%- @nodes.each do |node| -%>
 <%= set_node_template_vars(node.values.first) -%>
@@ -211,7 +192,7 @@ spec:
   selector:
     app: kuberneteth
     tier: backend
-    name: <%= @Node_UserIdent %>
+    name: <%= @Node_UserIdent %>-deployment
 <%- if @nodePort_rpc || @nodePort_ipc -%>
   type: LoadBalancer
   externalTrafficPolicy: Cluster
@@ -262,10 +243,10 @@ metadata:
     tier: backend
     name: geth-bootnode-svc
 spec:
+  type: LoadBalancer
   selector:
     app: kuberneteth
     tier: backend
-    name: bootnode
   ports:
     - name: geth-bootnode-ipc-discovery
       protocol: UDP
@@ -301,122 +282,12 @@ spec:
         volumeMounts:
         - name: geth-boot-node-persistent-storage
           mountPath: <%= @config["bootnode"]["geth"]["Node_DataDir"] %>
+      imagePullSecrets:
+      - name: dsf-dev-acr
       volumes:
       - name: geth-boot-node-persistent-storage
         hostPath:
           path: /var/lib/docker/geth-storage/bootnode
----
-apiVersion: apps/v1
-kind: StatefulSet
-metadata:
-  labels:
-    app: kuberneteth
-    tier: backend
-    name: geth-<%= @Node_UserIdent %>
-  name: geth-<%= @Node_UserIdent %>
-spec:
-  selector:
-    matchLabels:
-      app: kuberneteth
-  replicas: <%= @replicas %>
-  serviceName: geth-<%= @Node_UserIdent %>
-  template:
-    metadata:
-      name: geth-<%= @Node_UserIdent %>
-      labels:
-        app: kuberneteth
-        tier: backend
-        name: <%= @Node_UserIdent %>
-    spec:
-      initContainers:
-<%- unless @config["geth"]["network"]["public"] -%>
-      - name: <%= @Node_UserIdent %>-genesis-init-container
-        image: ethereum/client-go:<%= @config["geth"]["version"] %>
-        imagePullPolicy: IfNotPresent
-        command: [ "sh" ]
-        args:
-        - "-cx"
-        - "if [ ! -f <%= @Node_DataDir %>/genesis_created ]; then
-             /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/genesis-geth.json;
-             touch <%= @Node_DataDir %>/genesis_created;
-<%- end %>
-           fi;"
-        volumeMounts:
-        - name: <%= @Node_UserIdent %>-persistent-storage
-          mountPath: <%= @Node_DataDir %>
-        - name: geth-boot-node-persistent-storage
-          mountPath: <%= @Node_DataDir %>
-        - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/genesis-geth.json
-          subPath: genesis-geth.json
-<% end -%>
-      containers:
-      - name: <%= @Node_UserIdent %>-container
-        image: ethereum/client-go:<%= @config["geth"]["version"] %>
-        imagePullPolicy: IfNotPresent
-        command: [ "sh" ]
-        args:
-        - "-cx"
-        - "mkdir -p /etc/geth/<%= @Node_UserIdent %>;
-           cp /etc/gethconfigmap/<%= @Node_UserIdent %>/gethconfig.toml /etc/geth/<%= @Node_UserIdent %>;
-<%- unless @config["geth"]["network"]["public"] -%>
-           ENODE=$(cat <%= @Node_DataDir %>/enode.address);
-           ENODE_ESC=$(echo $ENODE | sed 's@//@\\\\/\\\\/@g');
-           sed -i \"s/BootstrapNodes = \\[\\]/BootstrapNodes = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;
-           sed -i \"s/BootstrapNodesV5 = \\[\\]/BootstrapNodesV5 = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;
-<% end -%>
-           /usr/local/bin/geth \
-           --verbosity <%= @config["geth"]["verbosity"] %>  \
-<%- if @Eth_Etherbase && @Eth_Password -%>
-           --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '0' --targetgaslimit '9000000000000' \
-<% end -%>
-           --config /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;"
-        ports:
-          - containerPort: <%= @Node_HTTPPort %>
-          - containerPort: <%= @Node_WSPort %>
-<%- if @NodeP2P_ListenAddr -%>
-          - containerPort: <%= @NodeP2P_ListenAddr %>
-<% end -%>
-            protocol: UDP
-<%- if @NodeP2P_DiscoveryAddr -%>
-          - containerPort: <%= @NodeP2P_DiscoveryAddr %>
-<% end -%>
-        volumeMounts:
-        - name: <%= @Node_UserIdent %>-persistent-storage
-          mountPath: <%= @Node_DataDir %>
-        - name: <%= @Node_UserIdent %>-config-persistent-storage
-          mountPath: /etc/gethconfigmap/<%= @Node_UserIdent %>
-        - name: keystore-config-persistent-storage
-          mountPath: <%= @Node_DataDir %>/keystore/<%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>
-          subPath: <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>
-        - name: geth-boot-node-persistent-storage
-          mountPath: <%= @Node_DataDir %>
-      volumes:
-      - name: keystore-config-persistent-storage
-        configMap:
-          name: keystore-config-<%= @Node_UserIdent %>
-          items:
-          - key: <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>
-            path: <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>
-<%- unless @config["geth"]["network"]["public"] -%>
-      - name: geth-boot-node-persistent-storage
-        hostPath:
-          path: /var/lib/docker/geth-storage/bootnode
-      - name: genesis-config-persistent-storage
-        configMap:
-          name: genesis-config
-          items:
-          - key: genesis-geth.json
-            path: genesis-geth.json
-      - name: <%= @Node_UserIdent %>-persistent-storage
-        persistentVolumeClaim:
-          claimName: volume-<%= @Node_UserIdent %>
-      - name: <%= @Node_UserIdent %>-config-persistent-storage
-        configMap:
-          name: gethconfig-<%= @Node_UserIdent %>
-          items:
-          - key: gethconfig
-            path: gethconfig.toml
 ---
 apiVersion: v1
 kind: Pod
@@ -438,14 +309,16 @@ spec:
     args:
     - "-c"
     - "cd <%= @config["bootnode"]["geth"]["Node_DataDir"] %>;
-       /geth --datadir <%= @config["bootnode"]["geth"]["Node_DataDir"] %> init /etc/geth/genesis/genesis-geth.json;
-       /bootnode --nodekeyhex <%= @config["bootnode"]["nodekeyhex"] %> --addr \":<%= @config["bootnode"]["geth"]["NodeP2P_DiscoveryAddr"]%>\" --nat any --verbosity <%= @config["bootnode"]["verbosity"] %>;"
+       /geth --datadir <%= @config["bootnode"]["geth"]["Node_DataDir"] %> init /etc/geth/genesis/Genesis-geth.json;
+       /bootnode --nodekeyhex <%= @config["bootnode"]["nodekeyhex"] %> --addr \":<%= @config["bootnode"]["geth"]["NodeP2P_DiscoveryAddr"] %>\" --nat any --verbosity <%= @config["bootnode"]["verbosity"] %>;"
     volumeMounts:
     - name: geth-boot-node-persistent-storage
       mountPath: <%= @config["bootnode"]["geth"]["Node_DataDir"] %>
     - name: genesis-config-persistent-storage
-      mountPath: /etc/geth/genesis/genesis-geth.json
-      subPath: genesis-geth.json
+      mountPath: /etc/geth/genesis/Genesis-geth.json
+      subPath: Genesis-geth.json
+  imagePullSecrets:
+  - name: dsf-dev-acr
   volumes:
   - name: geth-boot-node-persistent-storage
     hostPath:
@@ -454,34 +327,28 @@ spec:
     configMap:
       name: genesis-config
       items:
-      - key: genesis-geth.json
-        path: genesis-geth.json
+      - key: Genesis-geth.json
+        path: Genesis-geth.json
 <% end -%>
 
 <%- @nodes.each do |node| -%>
 <%= set_node_template_vars(node.values.first) -%>
 ---
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  labels:
-    app: kuberneteth
-    tier: backend
-    name: geth-<%= @Node_UserIdent %>
-  name: geth-<%= @Node_UserIdent %>
+  name: geth-<%= @Node_UserIdent %>-deployment
 spec:
-  selector:
-    matchLabels:
-      app: kuberneteth
+  strategy:
+    type: RollingUpdate
   replicas: <%= @replicas %>
-  serviceName: geth-<%= @Node_UserIdent %>
   template:
     metadata:
-      name: geth-<%= @Node_UserIdent %>
+      name: geth-<%= @Node_UserIdent %>-deployment
       labels:
         app: kuberneteth
         tier: backend
-        name: <%= @Node_UserIdent %>
+        name: <%= @Node_UserIdent %>-deployment
     spec:
       initContainers:
 <%- unless @config["geth"]["network"]["public"] -%>
@@ -492,7 +359,7 @@ spec:
         args:
         - "-cx"
         - "if [ ! -f <%= @Node_DataDir %>/genesis_created ]; then
-             /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/genesis-geth.json;
+             /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/Genesis-geth.json;
              touch <%= @Node_DataDir %>/genesis_created;
 <%- if @Eth_Etherbase && @Eth_Password -%>
              echo <%= @Eth_Password %> > <%= @Node_DataDir %>/password.txt;
@@ -504,8 +371,8 @@ spec:
         - name: geth-boot-node-persistent-storage
           mountPath: <%= @config["bootnode"]["geth"]["Node_DataDir"] %>
         - name: genesis-config-persistent-storage
-          mountPath: /etc/geth/genesis/genesis-geth.json
-          subPath: genesis-geth.json
+          mountPath: /etc/geth/genesis/Genesis-geth.json
+          subPath: Genesis-geth.json
 <% end -%>
       containers:
       - name: <%= @Node_UserIdent %>-container
@@ -579,8 +446,8 @@ spec:
         configMap:
           name: genesis-config
           items:
-          - key: genesis-geth.json
-            path: genesis-geth.json
+          - key: Genesis-geth.json
+            path: Genesis-geth.json
 <% end -%>
       - name: <%= @Node_UserIdent %>-persistent-storage
         persistentVolumeClaim:
@@ -616,27 +483,25 @@ spec:
       nodePort: <%= @config["monitor"]["k8s"]["nodePort"] %>
 <% end -%>
 ---
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
-  name: <%= @config["monitor"]["name"] %>
+  name: <%= @config["monitor"]["name"] %>-deployment
 spec:
-  selector:
-    matchLabels:
-      app: kuberneteth
+  strategy:
+    type: Recreate
   replicas: 1
-  serviceName: monitor
   template:
     metadata:
-      name: <%= @config["monitor"]["name"] %>
+      name: <%= @config["monitor"]["name"] %>-deployment
       labels:
         app: kuberneteth
         tier: frontend
-        name: <%= @config["monitor"]["name"] %>
+        name: <%= @config["monitor"]["name"] %>-deployment
     spec:
       initContainers:
       - name: <%= @config["monitor"]["name"] %>-init-container
-        image: buythewhale/ethstats_monitor:latest
+        image: ijsfd/eth-net-intelligence-api
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
@@ -663,7 +528,7 @@ spec:
           - containerPort: 3001
         env:
         - name: WS_SECRET
-          value: "<%= @config["monitor"]["ws_secret"] %>"
+          value: "connectme"
         - name: PORT
           value: "3001"
       - name: eth-net-intelligence-api-container
@@ -727,6 +592,8 @@ spec:
         volumeMounts:
         - name: mongodb-persistent-storage
           mountPath: /data/db
+      imagePullSecrets:
+      - name: dsf-dev-acr
       volumes:
       - name: mongodb-persistent-storage
         persistentVolumeClaim:
@@ -744,7 +611,7 @@ spec:
   selector:
     app: kuberneteth
     tier: frontend
-    name: explorer
+    name: explorer-deployment
 <%- if @config["explorer"]["k8s"]["nodePort"] -%>
   type: LoadBalancer
   externalTrafficPolicy: Cluster
@@ -757,23 +624,21 @@ spec:
       nodePort: <%= @config["explorer"]["k8s"]["nodePort"] %>
 <% end -%>
 ---
-apiVersion: apps/v1
-kind: StatefulSet
+apiVersion: extensions/v1beta1
+kind: Deployment
 metadata:
   name: explorer
 spec:
-  selector:
-    matchLabels:
-      app: kuberneteth
+  strategy:
+    type: Recreate
   replicas: 1
-  serviceName: explorer
   template:
     metadata:
-      name: explorer
+      name: explorer-deployment
       labels:
         app: kuberneteth
         tier: frontend
-        name: explorer
+        name: explorer-deployment
     spec:
       containers:
       - name: explorer
@@ -795,6 +660,8 @@ spec:
         - name: explorer-configmap-volume
           mountPath: /explorer-configmap/config.json
           subPath: config.json
+      imagePullSecrets:
+      - name: dsf-dev-acr
       volumes:
       - name: explorer-configmap-volume
         configMap:
@@ -802,3 +669,57 @@ spec:
           items:
           - key: config.json
             path: config.json
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend-svc
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: backend-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: backend
+    name: backend
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
+  ports:
+  - name: backend-port
+    protocol: TCP
+    port: 80
+    targetPort: 3000
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: backend
+  name: backend
+spec:
+  selector:
+    matchLabels:
+      app: kuberneteth
+  replicas: 3
+  serviceName: backend
+  template:
+    metadata:
+      labels:
+        app: kuberneteth
+        tier: backend
+        name: backend
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+      - name: backend
+        image: ijsfd/backend:stable
+        ports:
+        - name: backend-port
+          protocol: TCP
+          containerPort: 80
+        envFrom:
+          - secretRef:
+              name: backend-environment

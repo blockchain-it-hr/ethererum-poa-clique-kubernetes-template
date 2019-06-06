@@ -9,6 +9,8 @@ bootnodes:
       nodePort_rpc: 30008
       nodePort_ipc: 30009
       replicas: 1
+      nodekeyhex: "091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322"
+      verbosity: 9
     # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
     geth:
       storage_size: 20
@@ -25,9 +27,7 @@ bootnodes:
       # experimental built in dashboard (optional) only works on > v1.7.3
       Dashboard_Port: 8080
       Dashboard_Refresh: 3000000000
-    nodekeyhex: 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
     # verbosity of the bootnode [1..9]
-    verbosity: 9
 # here you can add as many nodes as you like, name and configure them
 nodes:
 - miner01:
