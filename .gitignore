@@ -3,3 +3,4 @@
 **/.idea/
 blockchain-explorer
 *.toml
+yaml/*.yaml
