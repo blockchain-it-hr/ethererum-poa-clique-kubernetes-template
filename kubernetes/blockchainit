@@ -35,7 +35,7 @@ end
 @nodes.each do |node|
   set_node_template_vars(node.values.first)
   File.open("#{@Node_UserIdent}.toml", "w") do |f|
-    f.puts (ERB.new(File.read("node.toml.erb"), nil, "-").result)
+    f.puts (ERB.new(File.read("nodes/node.toml.erb"), nil, "-").result)
   end
 end
 
@@ -46,63 +46,56 @@ end
 @bootnodes.each do |bootnode|
   set_node_template_vars(bootnode.values.first)
   File.open("#{@Node_UserIdent}.toml", "w") do |f|
-    f.puts (ERB.new(File.read("node.toml.erb"), nil, "-").result)
+    f.puts (ERB.new(File.read("nodes/node.toml.erb"), nil, "-").result)
   end
 end
 
 #####################################################################
-# nodes config
-#####################################################################
-#File.open("deployment.yaml", "w") do |f|
-#    f.puts (ERB.new(File.read("deployment.yaml.erb"), nil, "-").result)
-#end
-
-
-#####################################################################
-# claims
-#####################################################################
-File.open("claims.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("claims.yaml.erb"), nil, "-").result)
+# claims config
+####################################################################
+File.open("yaml/claims.yaml", "w") do |f|
+  f.puts (ERB.new(File.read("erb/claims.yaml.erb"), nil, "-").result)
 end
+
 
 #####################################################################
 # common config
 #####################################################################
 File.open("yaml/common-config.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("yaml/common-config.yaml.erb"), nil, "-").result)
+  f.puts (ERB.new(File.read("erb/common-config.yaml.erb"), nil, "-").result)
 end
 
 #####################################################################
 # nodes config
 #####################################################################
 File.open("yaml/nodes.yaml", "w") do |f|
-    f.puts (ERB.new(File.read("yaml/nodes.yaml.erb"), nil, "-").result)
+    f.puts (ERB.new(File.read("erb/nodes.yaml.erb"), nil, "-").result)
 end
 
 #####################################################################
 # bootnodes config
 #####################################################################
 File.open("yaml/bootnodes.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("yaml/bootnodes.yaml.erb"), nil, "-").result)
+  f.puts (ERB.new(File.read("erb/bootnodes.yaml.erb"), nil, "-").result)
 end
 
 #####################################################################
 # monitor config
 #####################################################################
 File.open("yaml/monitor.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("yaml/monitor.yaml.erb"), nil, "-").result)
+  f.puts (ERB.new(File.read("erb/monitor.yaml.erb"), nil, "-").result)
 end
 
 #####################################################################
 # explorer config
 #####################################################################
 File.open("yaml/explorer.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("yaml/explorer.yaml.erb"), nil, "-").result)
+  f.puts (ERB.new(File.read("erb/explorer.yaml.erb"), nil, "-").result)
 end
 
 #####################################################################
 # backend config
 #####################################################################
 File.open("yaml/backend.yaml", "w") do |f|
-  f.puts (ERB.new(File.read("yaml/backend.yaml.erb"), nil, "-").result)
+  f.puts (ERB.new(File.read("erb/backend.yaml.erb"), nil, "-").result)
 end

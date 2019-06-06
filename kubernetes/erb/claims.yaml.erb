@@ -18,65 +18,49 @@ def set_node_template_vars(values)
   return
 end
 -%>
-<%- @bootnodes.each do |node| -%>
-<%= set_node_template_vars(node.values.first) -%>
+---
+    <%- @nodes.each do |node| -%>
+    <%= set_node_template_vars(node.values.first) -%>
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: volume-<%= @Node_UserIdent %>
-  namespace: default
+    name: volume-<%= @Node_UserIdent %>
+    namespace: default
 spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: <%= @Storage_Size %>Gi
+    accessModes:
+        - ReadWriteOnce
+    resources:
+        requests:
+            storage: <%= @Storage_Size %>Gi
 status: {}
 ---
-<% end -%>
----
-<%- @nodes.each do |node| -%>
-<%= set_node_template_vars(node.values.first) -%>
+    <% end -%>
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: volume-<%= @Node_UserIdent %>
-  namespace: default
-spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: <%= @Storage_Size %>Gi
-status: {}
----
-<% end -%>
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  creationTimestamp: null
-  labels:
+    creationTimestamp: null
+    labels:
+        name: volume-ethmonitor
     name: volume-ethmonitor
-  name: volume-ethmonitor
 spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: <%= @config["monitor"]["storage_size"] %>Gi
+    accessModes:
+        - ReadWriteOnce
+    resources:
+        requests:
+            storage: <%= @config["monitor"]["storage_size"] %>Gi
 status: {}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  labels:
+    labels:
+        name: volume-mongodb
     name: volume-mongodb
-  name: volume-mongodb
 spec:
-  accessModes:
-  - ReadWriteOnce
-  resources:
-    requests:
-      storage: <%= @config["explorer"]["storage_size"] %>Gi
+    accessModes:
+        - ReadWriteOnce
+    resources:
+        requests:
+            storage: <%= @config["explorer"]["storage_size"] %>Gi
 status: {}
 ---
