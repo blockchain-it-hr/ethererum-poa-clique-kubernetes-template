@@ -8,10 +8,49 @@ const web3 = new Web3(provider, undefined, {
     transactionConfirmationBlocks: 1,
     transactionBlockTimeout: 5
 });
-const factoryData = require('../../../blockchain/build/contracts/Factory');
-const instanceData = require('../../../blockchain/build/contracts/Instance');
+//const factoryData = require('../../../blockchain/build/contracts/Factory');
+//const instanceData = require('../../../blockchain/build/contracts/Instance');
 const AssetNotFound = require("../errors/errors").AssetNotFound;
 const asyncForEach = require("../services/helpers").asyncForEach;
+
+const contractAddress = "0xcbbfbafedb0eb83016d2a96a4e80d30b20fa3e30";
+const abi = [{"constant": false,"inputs": [{"name": "hash","type": "bytes32"}],"name": "apply","outputs": [],"payable": false,"stateMutability": "nonpayable","type": "function"},{"constant": true,"inputs": [{"name": "email","type": "string"}],"name": "getApplicationID","outputs": [{"name": "","type": "uint256"}],"payable": false,"stateMutability": "view","type": "function"}]
+
+async function apply(mnemonic, privatekey, walletaddress){
+    web3.defaultAccount = walletaddress;
+    let Contract = new web3.eth.Contract(abi, contractAddress);
+    let result;
+    //let hash = "random";
+    let hash = web3.utils.keccak256("edi.sinovcic@gmail.com");
+    //"a04af7fa800560d977b377ab9b4af809e6c4d358bda4d062a565320a2e085b10";
+    let promise = Contract.methods.apply(hash).send({from: walletaddress});
+    return promise
+        .on('error', (error) => {
+            throw new Error("Creation failed")
+        })
+        .on('receipt', (receipt) => {
+            if (receipt.events.Deployed === undefined) {
+                promise.reject(new AssetNotFound("Deployment failed"));
+            } else {
+                deployedContractAddress = receipt.events.Deployed.returnValues._value;
+                promise.resolve(deployedContractAddress);
+            }
+        }).then((result) => {
+            return result;
+        }).catch((error) => {
+            throw new AssetNotFound("Deployment failed");
+        });
+}
+
+async function getApplicationID(mnemonic, privatekey, walletaddress){
+    web3.defaultAccount = walletaddress;
+    let Contract = new web3.eth.Contract(abi, contractAddress);
+    let result;
+    let email = "edi.sinovcic@gmail.com";
+    await Contract.methods.getApplicationID(email).call({from: walletaddress}, (error, response) => {
+        result = response;
+    });
+}
 
 async function getAll(mnemonic, privatekey, walletaddress) {
     web3.defaultAccount = walletaddress;
@@ -227,5 +266,7 @@ module.exports = {
     getById,
     create,
     createSync,
-    update
+    update,
+    apply,
+    getApplicationID
 };

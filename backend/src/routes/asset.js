@@ -9,9 +9,44 @@ let router = express.Router();
 
 const {assetCtrl} = require('../controllers');
 const {userCtrl} = require('../controllers');
-const {responseModel} = require('../model');
+const {responseModel} = require('../models');
 const {ErrorHandler} = require('../errors/errors');
 
+
+router.get('/apply', async (req, res) => {
+    try {
+        await authorize(req);
+        let {mnemonic, privatekey, walletaddress} = await userCtrl.getWalletForUser(req.body);
+        let start = performance.now();
+        let result = await assetCtrl.apply(mnemonic, privatekey, walletaddress);
+        let end = performance.now();
+        let response = responseModel.successResponse(`Query All Assets for user ${req.body.username}`, result, (end - start));
+        res.status(response.code).send(response);
+    } catch (err) {
+        console.error(`Query all assets for user ${req.body.username} failed with error: ${err}`);
+        let response = await ErrorHandler(err);
+        res.status(response.code).send(response);
+    }
+});
+
+
+router.get('/getID', async (req, res) => {
+    try {
+        await authorize(req);
+        let {mnemonic, privatekey, walletaddress} = await userCtrl.getWalletForUser(req.body);
+        let start = performance.now();
+        let result = await assetCtrl.getApplicationID(mnemonic, privatekey, walletaddress);
+        let end = performance.now();
+        let response = responseModel.successResponse(`Query All Assets for user ${req.body.username}`, result, (end - start));
+        res.status(response.code).send(response);
+    } catch (err) {
+        console.error(`Query all assets for user ${req.body.username} failed with error: ${err}`);
+        let response = await ErrorHandler(err);
+        res.status(response.code).send(response);
+    }
+});
+
+//--------------------------------------------------
 /**
  * URL: (GET) http://localhost:3000/api/asset/
  */

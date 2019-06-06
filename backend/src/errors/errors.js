@@ -1,5 +1,5 @@
 const axios = require("axios");
-const {responseModel} = require('../model');
+const {responseModel} = require('../models');
 const loggingEndpoint = process.env.LOGGING_ENDPOINT;
 
 class ContractTransactionCreationFailed extends Error {

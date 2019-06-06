@@ -1,13 +1,33 @@
 # configuration for the bootnode that makes the cluster nodes aware of each other - for that make sure bootnode has same genesis block
-bootnode:
-  nodekeyhex: 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
-  # verbosity of the bootnode [1..9]
-  verbosity: 9
-  # assign an rpc/ipc port
-  geth:
-    NodeP2P_ListenAddr: 30301
-    NodeP2P_DiscoveryAddr: 30303
-    Node_DataDir: /etc/testnet/bootnode
+bootnodes:
+- bootnode:
+    # this config values will end up in the k8s manifest directly
+    k8s:
+      # static external IP
+      # External_RPC_IP: 35.229.175.223
+      # open a port on each node (optional)
+      nodePort_rpc: 30008
+      nodePort_ipc: 30009
+      replicas: 1
+    # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
+    geth:
+      storage_size: 20
+      # address where the mining rewards will go to (optional)
+      Eth_Etherbase: "0x2da602397dbcd7b3f3efec474124746e8e913c44"
+      #Eth_Password: "R_e9bH5Jn8@vVSan"
+      # threads (optional)
+      Node_UserIdent: bootnode
+      Node_DataDir: /etc/testnet/bootnode
+      Node_HTTPPort: 8545
+      Node_WSPort: 8546
+      NodeP2P_ListenAddr: 30301
+      NodeP2P_DiscoveryAddr: 30303
+      # experimental built in dashboard (optional) only works on > v1.7.3
+      Dashboard_Port: 8080
+      Dashboard_Refresh: 3000000000
+    nodekeyhex: 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322
+    # verbosity of the bootnode [1..9]
+    verbosity: 9
 # here you can add as many nodes as you like, name and configure them
 nodes:
 - miner01:
@@ -23,7 +43,7 @@ nodes:
     geth:
       storage_size: 20      
       # address where the mining rewards will go to (optional)
-      Eth_Etherbase: "0x0ce04250b1e8aefa4da5411079365881d9edb2a0"
+      Eth_Etherbase: "0xc11ba4c7c24f70e7a581c7daa92eac108099acec"
       Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner01
@@ -47,7 +67,7 @@ nodes:
     geth:
       storage_size: 20
       # address where the mining rewards will go to (optional)
-      Eth_Etherbase: "0xf7613db032b4fd8569ef036f0e0f2757846659ab"
+      Eth_Etherbase: "0x4c92786b90d848eaa3f4ef46918af724a309ae79"
       Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner02
@@ -71,7 +91,7 @@ nodes:
     geth:
       storage_size: 20
       # address where the mining rewards will go to (optional)
-      Eth_Etherbase: "0x563c415aa48f173961b868354ea94a3e0cd6e387"
+      Eth_Etherbase: "0x4e7afbdc9413eeb582b3f1be49d652fa714484da"
       Eth_Password: "123"
       # threads (optional)
       Node_UserIdent: miner03
@@ -82,29 +102,6 @@ nodes:
       # experimental built in dashboard (optional) only works on > v1.7.3
       Dashboard_Port: 8080
       Dashboard_Refresh: 3000000000
-#- member01:
-#    # this config values will end up in the k8s manifest directly
-#    k8s:
-#      # static external IP
-#      # External_RPC_IP: 35.229.175.223
-#      # open a port on each node (optional)
-#      nodePort_rpc: 30008
-#      nodePort_ipc: 30009
-#      replicas: 1
-#    # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
-#    geth:
-#      # address where the mining rewards will go to (optional)
-#      Eth_Etherbase: "0xe211532317f4c2003d526630f14da2ca679ff189"
-#      #Eth_Password: "R_e9bH5Jn8@vVSan"
-#      # threads (optional)
-#      Node_UserIdent: member01
-#      Node_DataDir: /etc/testnet/member01
-#      Node_HTTPPort: 8545
-#      Node_WSPort: 8546
-#      NodeP2P_DiscoveryAddr: 30303
-#      # experimental built in dashboard (optional) only works on > v1.7.3
-#      Dashboard_Port: 8080
-#      Dashboard_Refresh: 3000000000
 #- member02:
 #    # this config values will end up in the k8s manifest directly
 #    k8s:
@@ -117,7 +114,7 @@ nodes:
 #    # this config values will alter the geth config toml file which will end up as a ConfigMap in the k8s manifest
 #    geth:
 #      # address where the mining rewards will go to (optional)
-#      Eth_Etherbase: "0xde27d6ab2aa56c3516ac912da28f96a233199e29"
+#      Eth_Etherbase: "0x1e2510200cc63faf248150530d16415a52757f50"
 #      #Eth_Password: "R_e9bH5Jn8@vVSan"
 #      # threads (optional)
 #      Node_UserIdent: member02
@@ -139,8 +136,8 @@ monitor:
   verbosity: 3
   k8s:
     nodePort: 30100
-    externalIP: 35.229.175.220
-    externalPort: 3001
+    #externalIP: 35.229.175.220
+    externalPort: 80
     # create a private key and add it to the keystore folder
     # ... or just use the example one for testing
     configMap:
@@ -155,8 +152,8 @@ explorer:
   explorerHTTPPort: 8545
   k8s:
     nodePort: 30101
-    externalIP: 35.229.175.221
-    externalPort: 3001
+    #externalIP: 35.229.175.221
+    externalPort: 80
     configMap:
       name: explorer-config
       items:
@@ -167,11 +164,11 @@ keystore:
   # false: use the key in keystore folder
   secret: false
   items:
-    "0x0ce04250b1e8aefa4da5411079365881d9edb2a0": UTC--2019-05-20T13-38-09.704745844Z--0ce04250b1e8aefa4da5411079365881d9edb2a0
-    "0xf7613db032b4fd8569ef036f0e0f2757846659ab": UTC--2019-05-20T13-38-26.005045673Z--f7613db032b4fd8569ef036f0e0f2757846659ab
-    "0x563c415aa48f173961b868354ea94a3e0cd6e387": UTC--2019-05-20T13-38-30.380947439Z--563c415aa48f173961b868354ea94a3e0cd6e387
-    "0xe211532317f4c2003d526630f14da2ca679ff189": UTC--2019-05-20T13-38-37.810742417Z--e211532317f4c2003d526630f14da2ca679ff189
-    "0xde27d6ab2aa56c3516ac912da28f96a233199e29": UTC--2019-05-20T13-38-42.165148005Z--de27d6ab2aa56c3516ac912da28f96a233199e29
+    "0xc11ba4c7c24f70e7a581c7daa92eac108099acec": UTC--2019-06-04T13-52-41.551926270Z--c11ba4c7c24f70e7a581c7daa92eac108099acec
+    "0x4c92786b90d848eaa3f4ef46918af724a309ae79": UTC--2019-06-04T13-52-48.511656735Z--4c92786b90d848eaa3f4ef46918af724a309ae79
+    "0x4e7afbdc9413eeb582b3f1be49d652fa714484da": UTC--2019-06-04T13-52-53.567362092Z--4e7afbdc9413eeb582b3f1be49d652fa714484da
+    "0x2da602397dbcd7b3f3efec474124746e8e913c44": UTC--2019-06-04T13-53-00.073235074Z--2da602397dbcd7b3f3efec474124746e8e913c44
+    "0x1e2510200cc63faf248150530d16415a52757f50": UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50
 geth:
   # you can find suitable tags in https://hub.docker.com/r/ethereum/client-go/tags/
   # due to some config file changes in geth it needs to be > 1.8.0
@@ -191,3 +188,5 @@ geth:
   # NodeP2P_Netrestrict: "10.36.0.0/14"
   # general verbosity of geth [1..5]
   verbosity: 3
+
+  
