@@ -94,7 +94,7 @@ File.open("yaml/monitor.yaml", "w") do |f|
 end
 
 #####################################################################
-# monitor config
+# explorer config
 #####################################################################
 File.open("yaml/explorer.yaml", "w") do |f|
   f.puts (ERB.new(File.read("yaml/explorer.yaml.erb"), nil, "-").result)
