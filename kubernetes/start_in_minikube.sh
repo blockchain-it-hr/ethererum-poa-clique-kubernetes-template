@@ -8,6 +8,4 @@ if [ "$input" = "Y" ]; then
     #eval $(minikube docker-env)
 fi
 ./kuberneteth
-kubectl apply -f claims.yaml
-sleep 60
-kubectl apply -f deployment.yaml
+kubectl apply -f yaml
