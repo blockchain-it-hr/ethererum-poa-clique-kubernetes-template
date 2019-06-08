@@ -1,10 +1,10 @@
-![BlockchainIT](logo.png)
+![BlockchainIT](logo.jpg)
 
 
 # Ethererum Proof of Authority Clique Kubernetes template
 Use this template to start Proof of Authority network on your kubernetes cluster or locally on minikube.
 
-# Kubernetes 
+## Kubernetes 
 To start network using kubectl use:
 sh start.sh
 
