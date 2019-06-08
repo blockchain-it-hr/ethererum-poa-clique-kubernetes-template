@@ -1,7 +1,7 @@
 ![BlockchainIT](logo.png)
 
 
-# Ethererum Proof of Autgority Clique Kubernetes template
+# Ethererum Proof of Authority Clique Kubernetes template
 Use this template to start Proof of Authority network on your kubernetes cluster or locally on minikube.
 
 # Kubernetes 
