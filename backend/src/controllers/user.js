@@ -1,7 +1,7 @@
 let fs = require("fs");
 const path = require('path');
 
-//TODO: when user permissions are added do this part without hardcoded strings!
+//TODO: When users are implemented update this part without hardcoded strings!
 async function getWalletForUser(username) {
     username = "test"; //TODO: move to env variables
     const walletPath = path.join(__dirname, '../../wallet/', username);
