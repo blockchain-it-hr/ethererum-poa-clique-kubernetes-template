@@ -2,3 +2,5 @@
 **/package-lock.json
 **/.idea/
 blockchain-explorer
+*.toml
+yaml/
