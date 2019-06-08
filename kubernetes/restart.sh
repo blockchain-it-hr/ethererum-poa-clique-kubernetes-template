@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-#./kuberneteth
-
-kubectl delete -f deployment.yaml && \\
+./blockchainit
+kubectl delete -f yaml/ && \\
 sleep 30 && \
-kubectl delete -f claims.yaml && \\
-sleep 30 && \
-kubectl apply -f claims.yaml && \\
-sleep 30 && \
-kubectl apply -f deployment.yaml
+kubectl apply -f yaml/

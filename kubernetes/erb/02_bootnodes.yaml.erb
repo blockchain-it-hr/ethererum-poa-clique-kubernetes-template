@@ -36,6 +36,7 @@ data:
     <%= line -%>
 <% end -%>
 <% end -%>
+
 <%- @bootnodes.each do |bootnode| -%>
 <%= set_node_template_vars(bootnode.values.first) -%>
 ---
@@ -89,13 +90,15 @@ spec:
     spec:
       containers:
       - name: geth-boot-node-setup-container
-        image: ijsfd/geth-node:latest
+        image: ijsfd/geth-node:alltools-v1.8.27
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
         - "-cx"
         - "cd <%= @Node_DataDir %>;
-           echo \"enode://$(/bootnode -nodekeyhex <%= @Nodekeyhex %> -writeaddress)@$GETH_BOOTNODE_SVC_SERVICE_HOST:<%= @NodeP2P_DiscoveryAddr %>\" > enode.address;
+           echo \"<%= @Nodekeyhex %>\" > nodekeyhex;
+           cat nodekeyhex;
+           echo \"enode://$(/usr/local/bin/bootnode -nodekey nodekeyhex -writeaddress)@$GETH_BOOTNODE_SVC_SERVICE_HOST:<%= @NodeP2P_DiscoveryAddr %>\" > enode.address;
            set +x;
            while true; do :; done;"
         volumeMounts:
@@ -130,28 +133,22 @@ spec:
     spec:
       containers:
       - name: geth-bootnode-container
-        image: ijsfd/geth-node:latest
+        image: ijsfd/geth-node:alltools-v1.8.27
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
         - "-cx"
         - "cd <%= @Node_DataDir %>;
-          /geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/genesis-geth.json;
+          /usr/local/bin/geth --datadir <%= @Node_DataDir %> init /etc/geth/genesis/genesis-geth.json;
           touch <%= @Node_DataDir %>/genesis_created;
           echo <%= @Eth_Password %> > <%= @Node_DataDir %>/password.txt;
           mkdir -p /etc/geth/<%= @Node_UserIdent %>;
           cp /etc/gethconfigmap/<%= @Node_UserIdent %>/gethconfig.toml /etc/geth/<%= @Node_UserIdent %>;
-<%- unless @config["geth"]["network"]["public"] -%>
-          ENODE=$(cat /etc/testnet/bootnode/enode.address);
-          ENODE_ESC=$(echo $ENODE | sed 's@//@\\\\/\\\\/@g');
-          sed -i \"s/BootstrapNodes = \\[\\]/BootstrapNodes = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;
-          sed -i \"s/BootstrapNodesV5 = \\[\\]/BootstrapNodesV5 = [\\\"$ENODE_ESC\\\"]/g\" /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;
-<% end -%>
-          /geth \
+          /usr/local/bin/geth \
           --verbosity <%= @config["geth"]["network"]["verbosity"] %>  \
-          --nodekey <%= @Nodekeyhex %> \
+          --nodekey <%= @Node_DataDir %>/nodekeyhex \
 <%- if @Eth_Etherbase && @Eth_Password -%>
-          --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '0' --targetgaslimit '9000000000000' \
+          --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '<%= @config['geth']['network']['gasPrice'] %>' --targetgaslimit '<%= @config['geth']['network']['gasLimit'] %>' \
 <% end -%>
           --config /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;"
         volumeMounts:

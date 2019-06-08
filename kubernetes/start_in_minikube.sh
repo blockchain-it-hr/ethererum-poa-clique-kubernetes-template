@@ -7,5 +7,5 @@ if [ "$input" = "Y" ]; then
     minikube start --cpus 4 --memory 4096
     #eval $(minikube docker-env)
 fi
-./kuberneteth
-kubectl apply -f yaml
+./blockchainit
+kubectl apply -f yaml/
