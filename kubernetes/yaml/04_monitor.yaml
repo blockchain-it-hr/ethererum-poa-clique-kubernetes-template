@@ -78,7 +78,6 @@ data:
       }
     ]
 ---
----
 apiVersion: v1
 kind: Service
 metadata:
@@ -118,7 +117,7 @@ spec:
     spec:
       initContainers:
       - name: monitor-init-container
-        image: buythewhale/ethstats_monitor:latest
+        image: ijsfd/eth-netstats
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
@@ -164,6 +163,4 @@ spec:
       - name: monitor-config-persistent-storage
         persistentVolumeClaim:
           claimName: volume-ethmonitor
-      imagePullSecrets:
-      - name: dsf-dev-acr
 ---
