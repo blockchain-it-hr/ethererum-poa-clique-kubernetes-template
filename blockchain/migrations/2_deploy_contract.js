@@ -1,5 +1,5 @@
-let Factory = artifacts.require("Factory.sol");
+let Ballot = artifacts.require("Ballot.sol");
 
 module.exports = function (deployer) {
-    deployer.deploy(Factory)
+    deployer.deploy(Ballot)
 };
