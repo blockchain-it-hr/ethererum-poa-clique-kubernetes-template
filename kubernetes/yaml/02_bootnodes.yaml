@@ -1,0 +1,246 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: keystore-config-bootnode
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: keystore-config-bootnode
+data:
+  UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50: |-
+    {
+      "address": "1e2510200cc63faf248150530d16415a52757f50",
+      "crypto": {
+        "cipher": "aes-128-ctr",
+        "ciphertext": "132f9d7ffbef213972520e5773a65f7d3a97281e404a5f04827e22dbc5d42594",
+        "cipherparams": {
+          "iv": "551ddfa050dd8a3a58fd7c635e3bdc41"
+        },
+        "kdf": "scrypt",
+        "kdfparams": {
+          "dklen": 32,
+          "n": 262144,
+          "p": 1,
+          "r": 8,
+          "salt": "6521f381b61a7715d7086cb5b0167a1446ab8864ff8cfd65dc6cb9495ea270d8"
+        },
+        "mac": "ca41598e9d2a8a6e5423001449568be8681fa6f283d4dc670431eb862a1b6cf0"
+      },
+      "id": "9c5d5c6e-37bb-4e4e-8f0c-8419d1473b09",
+      "version": 3
+    }
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: gethconfig-bootnode
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: gethconfig-bootnode
+data:
+  gethconfig: |-
+    [Eth]
+    NetworkId = 123456
+    SyncMode = "full"
+    LightPeers = 100
+    DatabaseCache = 768
+    Etherbase = "0x1e2510200cc63faf248150530d16415a52757f50"
+    MinerGasPrice = 0
+    EnablePreimageRecording = false
+    
+    [Eth.Ethash]
+    CacheDir = "ethash"
+    CachesInMem = 2
+    CachesOnDisk = 3
+    DatasetDir = "/root/.ethash"
+    DatasetsInMem = 1
+    DatasetsOnDisk = 2
+    PowMode = 0
+    
+    [Eth.TxPool]
+    Locals = []
+    NoLocals = false
+    Journal = "transactions.rlp"
+    Rejournal = 3600000000000
+    PriceLimit = 1
+    PriceBump = 10
+    AccountSlots = 16
+    GlobalSlots = 4096
+    AccountQueue = 64
+    GlobalQueue = 1024
+    Lifetime = 10800000000000
+    
+    [Eth.GPO]
+    Blocks = 20
+    Percentile = 60
+    
+    [Shh]
+    MaxMessageSize = 1048576
+    MinimumAcceptedPOW = 2e-01
+    
+    [Node]
+    UserIdent = "bootnode"
+    DataDir = "/etc/testnet/bootnode"
+    IPCPath = "/etc/testnet/bootnode/geth.ipc"
+    HTTPHost = "0.0.0.0"
+    HTTPPort = 8545
+    HTTPCors = ["*"]
+    HTTPVirtualHosts = ["*"]
+    HTTPModules = ["db", "eth", "net", "web3", "personal", "miner", "admin", "clique"]
+    WSHost = "0.0.0.0"
+    WSPort = 8546
+    WSOrigins = ["*"]
+    WSModules = ["net", "web3", "eth", "shh"]
+    
+    [Node.P2P]
+    MaxPeers = 25
+    NoDiscovery = false
+    BootstrapNodes = []
+    BootstrapNodesV5 = []
+    StaticNodes = []
+    TrustedNodes = []
+    ListenAddr = ":30303"
+    EnableMsgEvents = false
+    
+    [Dashboard]
+    Host = "0.0.0.0"
+    Port = 8080
+    Refresh = 3000000000
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: geth-bootnode-svc
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-bootnode-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: backend
+    name: bootnode
+  ports:
+    - name: geth-bootnode-ipc-discovery
+      protocol: UDP
+      port: 30303
+      targetPort: 30303
+---
+apiVersion: extensions/v1beta1
+kind: DaemonSet
+metadata:
+  name: geth-boot-node-setup-pod
+  labels:
+    app: kuberneteth
+    name: bootnode-setup-pod
+spec:
+  template:
+    metadata:
+      labels:
+        app: kuberneteth
+        name: bootnode-setup-pod
+    spec:
+      containers:
+      - name: geth-boot-node-setup-container
+        image: ijsfd/geth-node:alltools-v1.8.27
+        imagePullPolicy: IfNotPresent
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cd /etc/testnet/bootnode;
+           echo \"091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322\" > nodekeyhex;
+           cat nodekeyhex;
+           echo \"enode://$(/usr/local/bin/bootnode -nodekey nodekeyhex -writeaddress)@$GETH_BOOTNODE_SVC_SERVICE_HOST:30303\" > enode.address;
+           set +x;
+           while true; do :; done;"
+        volumeMounts:
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+      volumes:
+      - name: geth-boot-node-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/bootnode
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: geth-bootnode
+  labels:
+    app: kuberneteth
+    tier: backend
+    name: geth-bootnode
+spec:
+  selector:
+    matchLabels:
+      app: kuberneteth
+  replicas: 1
+  serviceName: geth-bootnode
+  template:
+    metadata:
+      name: geth-bootnode
+      labels:
+        app: kuberneteth
+        tier: backend
+        name: bootnode
+    spec:
+      containers:
+      - name: geth-bootnode-container
+        image: ijsfd/geth-node:alltools-v1.8.27
+        imagePullPolicy: IfNotPresent
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cd /etc/testnet/bootnode;
+          /usr/local/bin/geth --datadir /etc/testnet/bootnode init /etc/geth/genesis/genesis-geth.json;
+          touch /etc/testnet/bootnode/genesis_created;
+          echo 123 > /etc/testnet/bootnode/password.txt;
+          mkdir -p /etc/geth/bootnode;
+          cp /etc/gethconfigmap/bootnode/gethconfig.toml /etc/geth/bootnode;
+          /usr/local/bin/geth \
+          --verbosity 3  \
+          --nodekey /etc/testnet/bootnode/nodekeyhex \
+          --unlock 0x1e2510200cc63faf248150530d16415a52757f50 --password /etc/testnet/bootnode/password.txt --gasprice '0x0' --targetgaslimit '0x82F79CD9000' \
+          --config /etc/geth/bootnode/gethconfig.toml;"
+        volumeMounts:
+        - name: bootnode-persistent-storage
+          mountPath: /etc/testnet/bootnode/storage
+        - name: bootnode-config-persistent-storage
+          mountPath: /etc/gethconfigmap/bootnode
+        - name: keystore-config-persistent-storage
+          mountPath: /etc/testnet/bootnode/keystore/UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50
+          subPath: UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50
+        - name: geth-boot-node-persistent-storage
+          mountPath: /etc/testnet/bootnode
+        - name: genesis-config-persistent-storage
+          mountPath: /etc/geth/genesis/genesis-geth.json
+          subPath: genesis-geth.json
+      volumes:
+      - name: keystore-config-persistent-storage
+        configMap:
+          name: keystore-config-bootnode
+          items:
+          - key: UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50
+            path: UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50
+      - name: geth-boot-node-persistent-storage
+        hostPath:
+          path: /var/lib/docker/geth-storage/bootnode
+      - name: genesis-config-persistent-storage
+        configMap:
+          name: genesis-config
+          items:
+          - key: genesis-geth.json
+            path: genesis-geth.json
+      - name: bootnode-persistent-storage
+        persistentVolumeClaim:
+          claimName: volume-bootnode
+      - name: bootnode-config-persistent-storage
+        configMap:
+          name: gethconfig-bootnode
+          items:
+          - key: gethconfig
+            path: gethconfig.toml
+---
