@@ -157,7 +157,7 @@ spec:
 <% end -%>
            --verbosity <%= @config["geth"]["network"]["verbosity"] %>  \
 <%- if @Eth_Etherbase && @Eth_Password -%>
-           --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '0' --targetgaslimit '9000000000000' \
+           --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '<%= @config['geth']['network']['gasPrice'] %>' --targetgaslimit '<%= @config['geth']['network']['gasLimit'] %>'  \
 <% end -%>
            --config /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;"
         ports:
