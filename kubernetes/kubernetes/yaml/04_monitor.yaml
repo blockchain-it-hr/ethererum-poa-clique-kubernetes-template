@@ -1,0 +1,166 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: monitor-config
+  namespace: default
+  labels:
+    app: kuberneteth
+    name: monitor-config
+data:
+  app.json: |-
+    [
+      {
+        "name"              : "miner01",
+        "cwd"               : ".",
+        "script"            : "app.js",
+        "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+        "merge_logs"        : false,
+        "watch"             : false,
+        "exec_interpreter"  : "node",
+        "exec_mode"         : "fork_mode",
+        "env":
+        {
+          "NODE_ENV"        : "production",
+          "RPC_HOST"        : "miner01-rpchost",
+          "RPC_PORT"        : "8545",
+          "LISTENING_PORT"  : "30303",
+          "INSTANCE_NAME"   : "miner01",
+          "CONTACT_DETAILS" : "",
+          "WS_SERVER"       : "localhost:3001",
+          "WS_SECRET"       : "123",
+          "VERBOSITY"       : 3
+        }
+      },
+      {
+        "name"              : "miner02",
+        "cwd"               : ".",
+        "script"            : "app.js",
+        "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+        "merge_logs"        : false,
+        "watch"             : false,
+        "exec_interpreter"  : "node",
+        "exec_mode"         : "fork_mode",
+        "env":
+        {
+          "NODE_ENV"        : "production",
+          "RPC_HOST"        : "miner02-rpchost",
+          "RPC_PORT"        : "8545",
+          "LISTENING_PORT"  : "30303",
+          "INSTANCE_NAME"   : "miner02",
+          "CONTACT_DETAILS" : "",
+          "WS_SERVER"       : "localhost:3001",
+          "WS_SECRET"       : "123",
+          "VERBOSITY"       : 3
+        }
+      },
+      {
+        "name"              : "miner03",
+        "cwd"               : ".",
+        "script"            : "app.js",
+        "log_date_format"   : "YYYY-MM-DD HH:mm Z",
+        "merge_logs"        : false,
+        "watch"             : false,
+        "exec_interpreter"  : "node",
+        "exec_mode"         : "fork_mode",
+        "env":
+        {
+          "NODE_ENV"        : "production",
+          "RPC_HOST"        : "miner03-rpchost",
+          "RPC_PORT"        : "8545",
+          "LISTENING_PORT"  : "30303",
+          "INSTANCE_NAME"   : "miner03",
+          "CONTACT_DETAILS" : "",
+          "WS_SERVER"       : "localhost:3001",
+          "WS_SECRET"       : "123",
+          "VERBOSITY"       : 3
+        }
+      }
+    ]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: monitor-svc
+  labels:
+    app: kuberneteth
+    tier: frontend
+    name: monitor-svc
+spec:
+  selector:
+    app: kuberneteth
+    tier: frontend
+  type: LoadBalancer
+  ports:
+    - name: monitor-port
+      protocol: TCP
+      port: 3001
+      nodePort: 30100
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: monitor
+spec:
+  selector:
+    matchLabels:
+      app: kuberneteth
+  replicas: 1
+  serviceName: monitor
+  template:
+    metadata:
+      name: monitor
+      labels:
+        app: kuberneteth
+        tier: frontend
+        name: monitor
+    spec:
+      initContainers:
+      - name: monitor-init-container
+        image: ijsfd/eth-netstats
+        imagePullPolicy: IfNotPresent
+        command: [ "sh" ]
+        args:
+        - "-cx"
+        - "cp -r /eth-net-intelligence-api/* /ethmonitor;
+           cp /monitor-configmap/app.json /ethmonitor/app.json;
+           sed -i \"s/miner01-rpchost/$MINER01_SVC_SERVICE_HOST/g\" /ethmonitor/app.json;
+           sed -i \"s/miner02-rpchost/$MINER02_SVC_SERVICE_HOST/g\" /ethmonitor/app.json;
+           sed -i \"s/miner03-rpchost/$MINER03_SVC_SERVICE_HOST/g\" /ethmonitor/app.json;
+           exit 0;"
+        volumeMounts:
+        - name: monitor-configmap-volume
+          mountPath: /monitor-configmap/app.json
+          subPath: app.json
+          # we need to mount an extra volume to be able to change a value in the configmap
+        - name: monitor-config-persistent-storage
+          mountPath: /ethmonitor
+      containers:
+      - name: eth-netstats-container
+        image: ijsfd/eth-netstats
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 3001
+        env:
+        - name: WS_SECRET
+          value: "123"
+        - name: PORT
+          value: "3001"
+      - name: eth-net-intelligence-api-container
+        image: ijsfd/eth-net-intelligence-api
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: monitor-config-persistent-storage
+          mountPath: /eth-net-intelligence-api/app.json
+          subPath: app.json
+      volumes:
+      - name: monitor-configmap-volume
+        configMap:
+          name: monitor-config
+          items:
+          - key: app.json
+            path: app.json
+      - name: monitor-config-persistent-storage
+        persistentVolumeClaim:
+          claimName: volume-ethmonitor
+---

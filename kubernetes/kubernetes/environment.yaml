@@ -111,7 +111,7 @@ geth:
     epoch: 30000
     nonce: "0x0"
     timestamp: "0x5cdec502"
-    gasLimit: "9000000000000"
+    gasLimit: "0x82F79CD9000"
     gasFloor: "0x82F79CD9000"
     gasCeil: "0x82F79CD9000"
     gasPrice: "0x0"

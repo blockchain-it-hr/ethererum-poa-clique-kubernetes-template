@@ -203,7 +203,7 @@ spec:
           /usr/local/bin/geth \
           --verbosity 3  \
           --nodekey /etc/testnet/bootnode/nodekeyhex \
-          --unlock 0x1e2510200cc63faf248150530d16415a52757f50 --password /etc/testnet/bootnode/password.txt --gasprice '0x0' --targetgaslimit '9000000000000' \
+          --unlock 0x1e2510200cc63faf248150530d16415a52757f50 --password /etc/testnet/bootnode/password.txt --gasprice '0x0' --targetgaslimit '0x82F79CD9000' \
           --config /etc/geth/bootnode/gethconfig.toml;"
         volumeMounts:
         - name: bootnode-persistent-storage
