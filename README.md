@@ -13,3 +13,5 @@ sh start_in_minikube.sh
 
 To sync locally use:
 sync_locally.sh (just change enode to your endpoint)
+
+Medium article to help you get started: https://medium.com/@edi.sinovcic/ethererum-poa-clique-on-kubernetes-6e86fed0c310
