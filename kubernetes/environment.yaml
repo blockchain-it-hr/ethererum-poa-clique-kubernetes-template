@@ -1,8 +1,6 @@
 bootnodes:
 - bootnode00:
     k8s:
-      nodePort_rpc: 30008
-      nodePort_ipc: 30009
       replicas: 1
       nodekeyhex: "091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322"
       verbosity: 9
@@ -21,8 +19,6 @@ bootnodes:
 nodes:
 - miner01:
     k8s:
-      nodePort_rpc: 30001
-      nodePort_ipc: 30002
       replicas: 1
     geth:
       storage_size: 20
@@ -37,8 +33,6 @@ nodes:
       Dashboard_Refresh: 3000000000
 - miner02:
     k8s:
-      nodePort_rpc: 30004
-      nodePort_ipc: 30005
       replicas: 1
     geth:
       storage_size: 20
@@ -53,8 +47,6 @@ nodes:
       Dashboard_Refresh: 3000000000
 - miner03:
     k8s:
-      nodePort_rpc: 30006
-      nodePort_ipc: 30007
       replicas: 1
     geth:
       storage_size: 20
@@ -74,7 +66,6 @@ monitor:
   # verbosity can be within [0..3]
   verbosity: 3
   k8s:
-    nodePort: 30100
     externalPort: 80
     configMap:
       name: genesis-config
@@ -87,7 +78,6 @@ explorer:
   explorerNode: miner01
   explorerHTTPPort: 8545
   k8s:
-    nodePort: 30101
     externalPort: 80
     configMap:
       name: explorer-config
@@ -112,14 +102,13 @@ geth:
     nonce: "0x0"
     timestamp: "0x5cdec502"
     gasLimit: "9000000000000"
+    targetgaslimit: '9000000000000'
     gasFloor: "0x82F79CD9000"
     gasCeil: "0x82F79CD9000"
     gasPrice: "0x0"
+    difficulty: "0x1"
     # public (true|false) is it a public network?
     public: false
     # cross_net (true|false) is it cross different network (cloud)
-    cross_net: true
+    cross_net: false
   # hex value of initial difficulty defined in the genesis block
-  difficulty: "0x1"
-  verbosity: 3
-  targetgaslimit: '9000000000000'
