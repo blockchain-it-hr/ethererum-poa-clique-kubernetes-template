@@ -5,7 +5,7 @@ metadata:
   name: keystore-config-miner01
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: keystore-config-miner01
 data:
   UTC--2019-06-04T13-52-41.551926270Z--c11ba4c7c24f70e7a581c7daa92eac108099acec: |-
@@ -37,7 +37,7 @@ metadata:
   name: keystore-config-miner02
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: keystore-config-miner02
 data:
   UTC--2019-06-04T13-52-48.511656735Z--4c92786b90d848eaa3f4ef46918af724a309ae79: |-
@@ -69,7 +69,7 @@ metadata:
   name: keystore-config-miner03
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: keystore-config-miner03
 data:
   UTC--2019-06-04T13-52-53.567362092Z--4e7afbdc9413eeb582b3f1be49d652fa714484da: |-
@@ -101,7 +101,7 @@ metadata:
   name: gethconfig-miner01
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: gethconfig-miner01
 data:
   gethconfig: |-
@@ -179,7 +179,7 @@ metadata:
   name: gethconfig-miner02
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: gethconfig-miner02
 data:
   gethconfig: |-
@@ -257,7 +257,7 @@ metadata:
   name: gethconfig-miner03
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: gethconfig-miner03
 data:
   gethconfig: |-
@@ -336,12 +336,12 @@ metadata:
   name: miner01-svc
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner01-svc
 spec:
   selector:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner01
   ports:
@@ -368,12 +368,12 @@ metadata:
   name: miner02-svc
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner02-svc
 spec:
   selector:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner02
   ports:
@@ -400,12 +400,12 @@ metadata:
   name: miner03-svc
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner03-svc
 spec:
   selector:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: miner03
   ports:
@@ -431,21 +431,21 @@ kind: StatefulSet
 metadata:
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: geth-miner01
   name: geth-miner01
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: miner
   replicas: 1
   serviceName: geth-miner01
   template:
     metadata:
       name: geth-miner01
       labels:
-        app: kuberneteth
+        app: miner
         tier: backend
         name: miner01
     spec:
@@ -521,21 +521,21 @@ kind: StatefulSet
 metadata:
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: geth-miner02
   name: geth-miner02
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: miner
   replicas: 1
   serviceName: geth-miner02
   template:
     metadata:
       name: geth-miner02
       labels:
-        app: kuberneteth
+        app: miner
         tier: backend
         name: miner02
     spec:
@@ -611,21 +611,21 @@ kind: StatefulSet
 metadata:
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: geth-miner03
   name: geth-miner03
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: miner
   replicas: 1
   serviceName: geth-miner03
   template:
     metadata:
       name: geth-miner03
       labels:
-        app: kuberneteth
+        app: miner
         tier: backend
         name: miner03
     spec:

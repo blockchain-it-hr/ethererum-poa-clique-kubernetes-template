@@ -24,7 +24,7 @@ metadata:
   name: keystore-config-<%= @Node_UserIdent %>
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: keystore-config-<%= @Node_UserIdent %>
 data:
   <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>: |-
@@ -41,7 +41,7 @@ metadata:
   name: gethconfig-<%= @Node_UserIdent %>
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     name: gethconfig-<%= @Node_UserIdent %>
 data:
   gethconfig: |-
@@ -58,12 +58,12 @@ metadata:
   name: <%= @Node_UserIdent %>-svc
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: <%= @Node_UserIdent %>-svc
 spec:
   selector:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: <%= @Node_UserIdent %>
   ports:
@@ -102,21 +102,21 @@ kind: StatefulSet
 metadata:
   namespace: default
   labels:
-    app: kuberneteth
+    app: miner
     tier: backend
     name: geth-<%= @Node_UserIdent %>
   name: geth-<%= @Node_UserIdent %>
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: miner
   replicas: <%= @replicas %>
   serviceName: geth-<%= @Node_UserIdent %>
   template:
     metadata:
       name: geth-<%= @Node_UserIdent %>
       labels:
-        app: kuberneteth
+        app: miner
         tier: backend
         name: <%= @Node_UserIdent %>
     spec:

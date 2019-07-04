@@ -26,7 +26,7 @@ metadata:
   name: keystore-config-<%= @Node_UserIdent %>
   namespace: default
   labels:
-    app: kuberneteth
+    app: bootnode
     name: keystore-config-<%= @Node_UserIdent %>
 data:
   <%= @config["keystore"]["items"]["#{@Eth_Etherbase}"] %>: |-
@@ -44,7 +44,7 @@ metadata:
   name: gethconfig-<%= @Node_UserIdent %>
   namespace: default
   labels:
-    app: kuberneteth
+    app: bootnode
     name: gethconfig-<%= @Node_UserIdent %>
 data:
   gethconfig: |-
@@ -59,14 +59,16 @@ metadata:
   namespace: default
   name: geth-bootnode-svc
   labels:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: geth-bootnode-svc
 spec:
   selector:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: bootnode
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
   ports:
     - name: geth-bootnode-ipc-discovery
       protocol: UDP
@@ -79,13 +81,13 @@ metadata:
   namespace: default
   name: geth-boot-node-setup-pod
   labels:
-    app: kuberneteth
+    app: bootnode
     name: bootnode-setup-pod
 spec:
   template:
     metadata:
       labels:
-        app: kuberneteth
+        app: bootnode
         name: bootnode-setup-pod
     spec:
       containers:
@@ -115,20 +117,20 @@ metadata:
   namespace: default
   name: geth-bootnode
   labels:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: geth-bootnode
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: bootnode
   replicas: <%= @replicas %>
   serviceName: geth-<%= @Node_UserIdent %>
   template:
     metadata:
       name: geth-<%= @Node_UserIdent %>
       labels:
-        app: kuberneteth
+        app: bootnode
         tier: backend
         name: <%= @Node_UserIdent %>
     spec:

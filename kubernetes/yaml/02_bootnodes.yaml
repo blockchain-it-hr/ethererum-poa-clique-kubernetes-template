@@ -5,7 +5,7 @@ metadata:
   name: keystore-config-bootnode
   namespace: default
   labels:
-    app: kuberneteth
+    app: bootnode
     name: keystore-config-bootnode
 data:
   UTC--2019-06-04T13-53-06.513321284Z--1e2510200cc63faf248150530d16415a52757f50: |-
@@ -38,7 +38,7 @@ metadata:
   name: gethconfig-bootnode
   namespace: default
   labels:
-    app: kuberneteth
+    app: bootnode
     name: gethconfig-bootnode
 data:
   gethconfig: |-
@@ -117,14 +117,16 @@ metadata:
   namespace: default
   name: geth-bootnode-svc
   labels:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: geth-bootnode-svc
 spec:
   selector:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: bootnode
+  type: LoadBalancer
+  externalTrafficPolicy: Cluster
   ports:
     - name: geth-bootnode-ipc-discovery
       protocol: UDP
@@ -137,13 +139,13 @@ metadata:
   namespace: default
   name: geth-boot-node-setup-pod
   labels:
-    app: kuberneteth
+    app: bootnode
     name: bootnode-setup-pod
 spec:
   template:
     metadata:
       labels:
-        app: kuberneteth
+        app: bootnode
         name: bootnode-setup-pod
     spec:
       containers:
@@ -173,20 +175,20 @@ metadata:
   namespace: default
   name: geth-bootnode
   labels:
-    app: kuberneteth
+    app: bootnode
     tier: backend
     name: geth-bootnode
 spec:
   selector:
     matchLabels:
-      app: kuberneteth
+      app: bootnode
   replicas: 1
   serviceName: geth-bootnode
   template:
     metadata:
       name: geth-bootnode
       labels:
-        app: kuberneteth
+        app: bootnode
         tier: backend
         name: bootnode
     spec:
