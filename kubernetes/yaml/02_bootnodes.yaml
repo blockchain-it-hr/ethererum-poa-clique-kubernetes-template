@@ -114,6 +114,7 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: default
   name: geth-bootnode-svc
   labels:
     app: kuberneteth
@@ -133,6 +134,7 @@ spec:
 apiVersion: extensions/v1beta1
 kind: DaemonSet
 metadata:
+  namespace: default
   name: geth-boot-node-setup-pod
   labels:
     app: kuberneteth
@@ -168,6 +170,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   name: geth-bootnode
   labels:
     app: kuberneteth

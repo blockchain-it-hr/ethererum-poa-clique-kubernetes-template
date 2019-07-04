@@ -32,8 +32,6 @@ def set_node_template_vars(values)
     @NodeP2P_DiscoveryAddr = values['geth']['NodeP2P_DiscoveryAddr']
     @Dashboard_Port = values['geth']['Dashboard_Port']
     @Dashboard_Refresh = values['geth']['Dashboard_Refresh']
-    @nodePort_rpc = values['k8s']['nodePort_rpc']
-    @nodePort_ipc = values['k8s']['nodePort_ipc']
     @replicas = values['k8s']['replicas']
     return
 end
@@ -117,4 +115,12 @@ end
 #####################################################################
 File.open('yaml/06_backend.yaml', 'w') do |f|
     f.puts ERB.new(File.read('erb/06_backend.yaml.erb'), nil, '-').result
+end
+
+
+#####################################################################
+# load balancer config
+#####################################################################
+File.open('yaml/07_load_balancers.yaml', 'w') do |f|
+    f.puts ERB.new(File.read('erb/07_load_balancers.yaml.erb'), nil, '-').result
 end

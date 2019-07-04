@@ -334,6 +334,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: miner01-svc
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -343,14 +344,11 @@ spec:
     app: kuberneteth
     tier: backend
     name: miner01
-  type: LoadBalancer
-  externalTrafficPolicy: Cluster
   ports:
     - name: miner01-jsonrpc
       protocol: TCP
       port: 8545
       targetPort: 8545
-      nodePort: 30001
     - name: miner01-wsrpc
       protocol: TCP
       port: 8546
@@ -359,7 +357,6 @@ spec:
       protocol: TCP
       port: 30303
       targetPort: 30303
-      nodePort: 30002
     - name: miner01-dashboard
       protocol: TCP
       port: 8080
@@ -369,6 +366,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: miner02-svc
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -378,14 +376,11 @@ spec:
     app: kuberneteth
     tier: backend
     name: miner02
-  type: LoadBalancer
-  externalTrafficPolicy: Cluster
   ports:
     - name: miner02-jsonrpc
       protocol: TCP
       port: 8545
       targetPort: 8545
-      nodePort: 30004
     - name: miner02-wsrpc
       protocol: TCP
       port: 8546
@@ -394,7 +389,6 @@ spec:
       protocol: TCP
       port: 30303
       targetPort: 30303
-      nodePort: 30005
     - name: miner02-dashboard
       protocol: TCP
       port: 8080
@@ -404,6 +398,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: miner03-svc
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -413,14 +408,11 @@ spec:
     app: kuberneteth
     tier: backend
     name: miner03
-  type: LoadBalancer
-  externalTrafficPolicy: Cluster
   ports:
     - name: miner03-jsonrpc
       protocol: TCP
       port: 8545
       targetPort: 8545
-      nodePort: 30006
     - name: miner03-wsrpc
       protocol: TCP
       port: 8546
@@ -429,7 +421,6 @@ spec:
       protocol: TCP
       port: 30303
       targetPort: 30303
-      nodePort: 30007
     - name: miner03-dashboard
       protocol: TCP
       port: 8080
@@ -438,6 +429,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -527,6 +519,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -616,6 +609,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend

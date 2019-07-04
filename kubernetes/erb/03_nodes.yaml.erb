@@ -10,8 +10,6 @@ def set_node_template_vars(values)
   @NodeP2P_DiscoveryAddr = values["geth"]["NodeP2P_DiscoveryAddr"]
   @Dashboard_Port        = values["geth"]["Dashboard_Port"]
   @Dashboard_Refresh     = values["geth"]["Dashboard_Refresh"]
-  @nodePort_rpc          = values["k8s"]["nodePort_rpc"]
-  @nodePort_ipc          = values["k8s"]["nodePort_ipc"]
   @replicas              = values["k8s"]["replicas"]
   return
 end
@@ -58,6 +56,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: <%= @Node_UserIdent %>-svc
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend
@@ -67,18 +66,11 @@ spec:
     app: kuberneteth
     tier: backend
     name: <%= @Node_UserIdent %>
-<%- if @nodePort_rpc || @nodePort_ipc -%>
-  type: LoadBalancer
-  externalTrafficPolicy: Cluster
-<% end -%>
   ports:
     - name: <%= @Node_UserIdent %>-jsonrpc
       protocol: TCP
       port: <%= @Node_HTTPPort %>
       targetPort: <%= @Node_HTTPPort %>
-<%- if @nodePort_rpc -%>
-      nodePort: <%= @nodePort_rpc %>
-<% end -%>
     - name: <%= @Node_UserIdent %>-wsrpc
       protocol: TCP
       port: <%= @Node_WSPort %>
@@ -94,9 +86,6 @@ spec:
       protocol: TCP
       port: <%= @NodeP2P_DiscoveryAddr %>
       targetPort: <%= @NodeP2P_DiscoveryAddr %>
-<%- if @nodePort_ipc -%>
-      nodePort: <%= @nodePort_ipc %>
-<% end -%>
 <% end -%>
 <%- if @Dashboard_Port -%>
     - name: <%= @Node_UserIdent %>-dashboard
@@ -111,6 +100,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   labels:
     app: kuberneteth
     tier: backend

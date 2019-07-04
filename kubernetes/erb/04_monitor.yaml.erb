@@ -10,8 +10,6 @@ def set_node_template_vars(values)
   @NodeP2P_DiscoveryAddr = values["geth"]["NodeP2P_DiscoveryAddr"]
   @Dashboard_Port        = values["geth"]["Dashboard_Port"]
   @Dashboard_Refresh     = values["geth"]["Dashboard_Refresh"]
-  @nodePort_rpc          = values["k8s"]["nodePort_rpc"]
-  @nodePort_ipc          = values["k8s"]["nodePort_ipc"]
   @replicas              = values["k8s"]["replicas"]
   @External_RPC_IP       = values["k8s"]["External_RPC_IP"]
   return
@@ -63,6 +61,7 @@ data:
 apiVersion: v1
 kind: Service
 metadata:
+  namespace: default
   name: <%= @config["monitor"]["name"] %>-svc
   labels:
     app: kuberneteth
@@ -86,6 +85,7 @@ spec:
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
+  namespace: default
   name: <%= @config["monitor"]["name"] %>
 spec:
   selector:
