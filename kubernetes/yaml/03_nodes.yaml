@@ -110,8 +110,6 @@ data:
     SyncMode = "full"
     LightPeers = 100
     DatabaseCache = 768
-    Etherbase = "0xc11ba4c7c24f70e7a581c7daa92eac108099acec"
-    MinerGasPrice = 0
     EnablePreimageRecording = false
     
     [Eth.Ethash]
@@ -188,8 +186,6 @@ data:
     SyncMode = "full"
     LightPeers = 100
     DatabaseCache = 768
-    Etherbase = "0x4c92786b90d848eaa3f4ef46918af724a309ae79"
-    MinerGasPrice = 0
     EnablePreimageRecording = false
     
     [Eth.Ethash]
@@ -266,8 +262,6 @@ data:
     SyncMode = "full"
     LightPeers = 100
     DatabaseCache = 768
-    Etherbase = "0x4e7afbdc9413eeb582b3f1be49d652fa714484da"
-    MinerGasPrice = 0
     EnablePreimageRecording = false
     
     [Eth.Ethash]
@@ -451,7 +445,7 @@ spec:
     spec:
       containers:
       - name: miner01-container
-        image: ethereum/client-go:v1.8.27
+        image: ethereum/client-go:v1.9.0
         imagePullPolicy: Always
         command: [ "sh" ]
         args:
@@ -469,7 +463,7 @@ spec:
            --dashboard \
            --mine \
            --verbosity 3  \
-           --unlock 0xc11ba4c7c24f70e7a581c7daa92eac108099acec --password /etc/testnet/miner01/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
+           --unlock 0xc11ba4c7c24f70e7a581c7daa92eac108099acec --allow-insecure-unlock --password /etc/testnet/miner01/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
            --config /etc/geth/miner01/gethconfig.toml;"
         ports:
           - containerPort: 8545
@@ -541,7 +535,7 @@ spec:
     spec:
       containers:
       - name: miner02-container
-        image: ethereum/client-go:v1.8.27
+        image: ethereum/client-go:v1.9.0
         imagePullPolicy: Always
         command: [ "sh" ]
         args:
@@ -559,7 +553,7 @@ spec:
            --dashboard \
            --mine \
            --verbosity 3  \
-           --unlock 0x4c92786b90d848eaa3f4ef46918af724a309ae79 --password /etc/testnet/miner02/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
+           --unlock 0x4c92786b90d848eaa3f4ef46918af724a309ae79 --allow-insecure-unlock --password /etc/testnet/miner02/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
            --config /etc/geth/miner02/gethconfig.toml;"
         ports:
           - containerPort: 8545
@@ -631,7 +625,7 @@ spec:
     spec:
       containers:
       - name: miner03-container
-        image: ethereum/client-go:v1.8.27
+        image: ethereum/client-go:v1.9.0
         imagePullPolicy: Always
         command: [ "sh" ]
         args:
@@ -649,7 +643,7 @@ spec:
            --dashboard \
            --mine \
            --verbosity 3  \
-           --unlock 0x4e7afbdc9413eeb582b3f1be49d652fa714484da --password /etc/testnet/miner03/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
+           --unlock 0x4e7afbdc9413eeb582b3f1be49d652fa714484da --allow-insecure-unlock --password /etc/testnet/miner03/password.txt --gasprice '0x0' --targetgaslimit '9000000000000'  \
            --config /etc/geth/miner03/gethconfig.toml;"
         ports:
           - containerPort: 8545

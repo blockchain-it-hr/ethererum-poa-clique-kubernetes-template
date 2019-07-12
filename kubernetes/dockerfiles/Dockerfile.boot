@@ -1,4 +1,4 @@
-FROM ethereum/client-go:alltools-v1.8.27
+FROM ethereum/client-go:alltools-v1.9.0
 
 RUN \
   wget https://raw.githubusercontent.com/MaximilianMeister/kuberneteth/master/scripts/start_boot.sh -O /start_boot.sh && \

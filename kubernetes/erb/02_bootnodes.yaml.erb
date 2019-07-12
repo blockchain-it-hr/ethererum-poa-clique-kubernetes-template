@@ -92,7 +92,7 @@ spec:
     spec:
       containers:
       - name: geth-boot-node-setup-container
-        image: ijsfd/geth-node:alltools-v1.8.27
+        image: ijsfd/geth-node:alltools-v1.9.0
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
@@ -136,7 +136,7 @@ spec:
     spec:
       containers:
       - name: geth-bootnode-container
-        image: ijsfd/geth-node:alltools-v1.8.27
+        image: ijsfd/geth-node:alltools-v1.9.0
         imagePullPolicy: IfNotPresent
         command: [ "sh" ]
         args:
@@ -151,7 +151,7 @@ spec:
           --verbosity <%= @config["geth"]["network"]["verbosity"] %>  \
           --nodekey <%= @Node_DataDir %>/nodekeyhex \
 <%- if @Eth_Etherbase && @Eth_Password -%>
-          --unlock <%= @Eth_Etherbase %> --password <%= @Node_DataDir %>/password.txt --gasprice '<%= @config['geth']['network']['gasPrice'] %>' --targetgaslimit '<%= @config['geth']['network']['gasLimit'] %>' \
+          --unlock <%= @Eth_Etherbase %> --allow-insecure-unlock --password <%= @Node_DataDir %>/password.txt --gasprice '<%= @config['geth']['network']['gasPrice'] %>' --targetgaslimit '<%= @config['geth']['network']['gasLimit'] %>' \
 <% end -%>
           --config /etc/geth/<%= @Node_UserIdent %>/gethconfig.toml;"
         volumeMounts:
